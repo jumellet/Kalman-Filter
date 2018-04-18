@@ -1,9 +1,9 @@
 //============================================================================
 // Name        : Linear_Kalman_Filter.cpp
 // Author      : Julien
-// Version     :
+// Version     : 1.1
 // Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
+// Description : 1D Linear Kalman Filter used for a IMU simulation
 //============================================================================
 
 //#include <graphics.h>
@@ -27,14 +27,15 @@ int main() {
 	}
 
 //Measurement Simulation
-	float G, s=0.869565, m=83.333; //Value of the gaussian distribution & his variance & mean
+	float G, s=10, m=70; //Value of the gaussian distribution & his variance & mean
 	for (int i=0; i<200; i++){
 		//noise=rand() % 100+1; //noise in the range 0 to 100
 		//noise-=50;			//make the noise average equal to zero
 		//noise/=5;
-		G=1000*1/(pow((2.0*3.1415),0.5)*s)*exp(-pow((i-m),2)/(2.0*pow(s,2.0)));
+		//Equation of a gaussian
+		G=1000*1/(pow((2.0*3.1415),0.5)*sqrt(s))*exp(-pow((i-m),2)/(2.0*pow(sqrt(s),2.0)));
 		//cout <<(G+noise)<<endl;
-		cout <<G<<endl;
+		//cout <<G<<endl;
 	}
 
 
@@ -58,27 +59,41 @@ int main() {
 //LINEAR KALMAN FILTER
 //===========================================================
 
-	float xAccelero, xLightH, xEst, xTrue; //Inputs, State estimate & Output
-	float sXAccelero, sXLightH, sXEst, sXTrue=5; //Covariances associated
+	float xAccelero[3], xLightH, xEst, xTrue; //Inputs, State estimate & Output
+	float sXAccelero[3], sXLightH, sXEst, sXTrue=20; //Covariances associated
 	float K;	//Kalman Gain
 
-//Predict
 	sXLightH=s;   //Using covariance of the Light House simulation
 	xLightH=m;	//Using mean of the Light House simulation
-	xAccelero=110.0;	//Mean of the accelero
-	sXAccelero=20.0;	//Covariance of the accelero
+	xAccelero[0]=110.0;	//Mean of the accelero
+	sXAccelero[0]=20.0;	//Covariance of the accelero
 
-	xEst=xAccelero;
-	sXEst=sXAccelero;
+	//Simulation of Accelero derivation : x derive & variance associated increase
+
+	//cout<<xAccelero[0]<<", "<<sXAccelero[0]<<endl;
+	for (int i=1; i<=3; i++){
+		xAccelero[i]=xAccelero[0]+i*10;
+		sXAccelero[i]=sXAccelero[0]+i*5;
+		//cout<<xAccelero[i]<<", "<<sXAccelero[i]<<endl;
+
+	}
+
+	for (int i=0; i<4; i++){
+
+		//Predict (which normally follows a mathematical law)
+		xEst=xAccelero[i];
+		sXEst=sXAccelero[i];
 
 
-//Update
-	K=xEst/(xEst+sXTrue);
-	xTrue=(xAccelero*sXLightH + xLightH*sXAccelero) / (sXAccelero + sXLightH);
-			//weighted average for a 1D filter
-	sXTrue=(1-K)*sXEst;
+		//Update
+		K=xEst/(xEst+sXTrue);
+		xTrue=(xAccelero[i]*sXLightH + xLightH*sXAccelero[i]) / (sXAccelero[i] + sXLightH);
+				//weighted average for a 1D filter
+		sXTrue=(1-K)*sXEst;
 
-	//cout <<xEst<<", "<<sXEst<<", "<<xTrue<<", "<<sXTrue<<", "<<K <<endl;
+		cout <<xEst<<", "<<sXEst<<", "<<xTrue<<", "<<sXTrue<<", "<<K <<endl;
+		cout <<"=============================="<<endl;
+	}
 
 	return 0;
 }
