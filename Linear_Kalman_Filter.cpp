@@ -17,12 +17,11 @@ using namespace std;
 int main() {
 
 //IMU Simulation
-	int noise, ka=0, D; //Noise and Constant ka to simulate Derivation D of IMU
+	int noise, D=9; //Noise simulating Derivation D of IMU. It follows a "random velocity" sequence
 	for (int i=0; i<200; i++){
-		noise=rand() % 100+1; //noise in the range 0 to 100
-		//noise-=50;
-		ka+=1;
-		D=ka+noise;
+		noise=rand() % 20+1; //noise in the range 0 to 100
+		noise-=9;
+		D+=noise;
 		//cout <<  D <<endl;
 	}
 
