@@ -34,7 +34,9 @@ bpy.app.handlers.frame_change_pre.append( update )
 # MOVEMENT OF THE SPHERE
 ############################
 
-frame_num = 0for position in positions :
+frame_num = 0
+
+for position in positions :
     bpy.context.scene.frame_set(frame_num)
     ob.location = position
     ob.keyframe_insert(data_path="location",index = -1)
