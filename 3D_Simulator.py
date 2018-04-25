@@ -25,8 +25,10 @@ def update(s):
                                               #converted into a string
                                               
 #Updating of the x current position
-    x=s.objects['Sphere'].location[0]
-    d.data.body = 'Distance in x-direction: {0:.1f} meters'.format(x)
+    x=s.objects['Sphere'].location[0]       #x position
+    y=s.objects['Sphere'].location[1]       #y position
+    z=s.objects['Sphere'].location[2]       #z position
+    d.data.body = 'x : {0:.1f} meters\ny : {1:.1f} meters\nz : {2:.1f} meters'.format(x,y,z)
     
 bpy.app.handlers.frame_change_pre.append( update )
 
