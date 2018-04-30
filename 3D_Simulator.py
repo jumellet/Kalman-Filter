@@ -1,9 +1,9 @@
-import bpyfrom
-random import randint
+import bpy
+from random import randint
 
 #Generate 50 cubes randomly located
-for i in range(50):
-    bpy.ops.mesh.primitive_cube_add(location=[ randint(-10,10) for axis in 'xyz'])
+#for i in range(50):
+#    bpy.ops.mesh.primitive_cube_add(location=[ randint(-10,10) for axis in 'xyz'])
   
 #############################
 #Make an almost random movement to a sphere and show his current position and current frame
