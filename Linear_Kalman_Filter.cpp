@@ -115,26 +115,42 @@ int main() {
 //===========================================================
 
 	float *result = new float[2]; //Array to return xTrue & sXTrue (respectively x calculated and his covariance)
-	result[0] = 70.0;	//xTrue is here fixed to 70.0
+	result[0] = 0.0;	//xTrue is here fixed to 70.0
 	result[1] = 20.0;	//The covariance sXTrue is initialized to 20.0
 
 	//IMU SIMULATION
 	//Accelero derivation : x derive & variance associated increase
-	float xAcceleroTab[4], sXAcceleroTab[3];
-	xAcceleroTab[0]=110.0;	//Mean of the accelero
+	float xAcceleroTab[4], sXAcceleroTab[4];
+	xAcceleroTab[0]=0.0;	//Mean of the accelero
 	sXAcceleroTab[0]=20.0;	//Covariance of the accelero
 
+	//Light House Simulation
+	//Position stay constant according to the last measurement, but covariance increase
+	float xLightHTab[4], sXLightHTab[4];
+	xLightHTab[0] = 0.0;
+	sXLightHTab[0] = 20.0;
+
 	//Measurement loops using KF
-	for (int i=1; i<=4; i++){
-		xAcceleroTab[i]=xAcceleroTab[0]+i*10;
-		sXAcceleroTab[i]=sXAcceleroTab[0]+i*5;
-		//cout<<xAcceleroTab[i]<<", "<<sXAcceleroTab[i]<<endl;
+	for (int i=0; i<=3; i++){
+		for (int j=0; j<=3; j++){
+			int t = j+i*4; //Instants t
 
-		result = linearKFD(xAcceleroTab[i], sXAcceleroTab[i], 70.0, 10.0, result[0], result[1]);
+			//IMU Simulation
+			xAcceleroTab[j]=t*1.2;
+			sXAcceleroTab[j]=sXAcceleroTab[0]+j*5;
+			//cout<<xAcceleroTab[i]<<", "<<sXAcceleroTab[i]<<endl;
 
-		cout << "x"<<i<<"  "<< result[0] << "\nsx"<<i<<" " << result[1] <<"\n======"<< endl;
-		//cout << i <<" , "<< result[0] << " , "<< result[1] << endl;
+			//LightHouse Simulation
+			xLightHTab[j]=i*4;
+			sXLightHTab[j]=sXLightHTab[0]+3*j;
+
+			result = linearKFD(xAcceleroTab[j], sXAcceleroTab[j], xLightHTab[j], sXLightHTab[j], result[0], result[1]);
+
+			//cout << "x"<<i<<"  "<< result[0] << "\nsx"<<i<<" " << result[1] <<"\n======"<< endl;
+			cout << t <<" , "<< result[0] << " , "<< result[1] << endl;
+			//cout << result[1] << endl;
+
+		}
 	}
-
 	return 0;
 }
