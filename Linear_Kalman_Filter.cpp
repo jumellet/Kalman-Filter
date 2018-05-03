@@ -109,6 +109,8 @@ int main() {
 	closegraph();
 	*/
 
+	//1D circular movement around point 0 radius 4
+	float circ[21]={-4.0,-3.98,-3.92,-3.82,-3.67,-3.46,-3.2,-2.86,-2.4,-1.74,0,1.74,2.4,2.86,3.2,3.46,3.67,3.82,3.92,3.98,4.0};
 
 //===========================================================
 //LINEAR KALMAN FILTER
@@ -131,24 +133,26 @@ int main() {
 	sXLightHTab[0] = 20.0;
 
 	//Measurement loops using KF
-	for (int i=0; i<=3; i++){
+	for (int i=0; i<=4; i++){
 		for (int j=0; j<=3; j++){
 			int t = j+i*4; //Instants t
 
 			//IMU Simulation
-			xAcceleroTab[j]=t*1.2;
+			//xAcceleroTab[j]=t*1.2;	//Linear movement
+			xAcceleroTab[j]=circ[t]*1.2;	//Circular movement
 			sXAcceleroTab[j]=sXAcceleroTab[0]+j*5;
 			//cout<<xAcceleroTab[i]<<", "<<sXAcceleroTab[i]<<endl;
 
 			//LightHouse Simulation
-			xLightHTab[j]=i*4;
+			//xLightHTab[j]=i*4;	//Linear movement
+			xLightHTab[j]=circ[i*4];	//Circular movement
 			sXLightHTab[j]=sXLightHTab[0]+3*j;
 
-			result = linearKFD(xAcceleroTab[j], sXAcceleroTab[j], xLightHTab[j], sXLightHTab[j], result[0], result[1]);
+			result = linearKFD(xAcceleroTab[j], sXAcceleroTab[j],  xLightHTab[j], sXLightHTab[j], result[0], result[1]);
 
 			//cout << "x"<<i<<"  "<< result[0] << "\nsx"<<i<<" " << result[1] <<"\n======"<< endl;
-			cout << t <<" , "<< result[0] << " , "<< result[1] << endl;
-			//cout << result[1] << endl;
+			cout << circ[t] <<" , "<< result[0] << " , "<< result[1] << endl;
+			//cout << result[0] << endl;
 
 		}
 	}
