@@ -367,6 +367,10 @@ cout<<"+++++++++++START++++++++++"<<endl;
 	sULightHTab[0][0] = 20;
 	sULightHTab[0][1] = 20;
 
+	//Deplacement Simulation
+	//2D circular movement around point 0 radius 4
+		float circX[21]={-4.0,-3.98,-3.92,-3.82,-3.67,-3.46,-3.2,-2.86,-2.4,-1.74,0,1.74,2.4,2.86,3.2,3.46,3.67,3.82,3.92,3.98,4.0};
+		float circY[21]={4.0,3.98,3.92,3.82,3.67,3.46,3.2,2.86,2.4,1.74,0,1.74,2.4,2.86,3.2,3.46,3.67,3.82,3.92,3.98,4.0};
 
 	//Measurement on KF Algorithm
 	for (int i=0; i<=4; i++){
@@ -376,10 +380,10 @@ cout<<"+++++++++++START++++++++++"<<endl;
 				//cout<<t<<" "<<t<<"+++++++ITERATION+++++++"<<t<<" "<<t<<endl;
 
 				//IMU Simulation
-				uAcceleroTab[j][0]=i*4+j*1.2;	//Linear movement
-				uAcceleroTab[j][1]=i*4+j*1.2;
-				//uAcceleroTab[j][0]=circ[t]*1.2;	//Circular movement
-				//uAcceleroTab[j][1]=circ[t]*1.2;
+				//uAcceleroTab[j][0]=i*4+j*1.2;	//Linear movement
+				//uAcceleroTab[j][1]=i*4+j*1.2;
+				uAcceleroTab[j][0]=circX[t]*1.2;	//Circular movement
+				uAcceleroTab[j][1]=circY[t]*1.2;
 				sUAcceleroTab[j][0]=sUAcceleroTab[0][0]+j*3;
 				sUAcceleroTab[j][1]=sUAcceleroTab[0][1]+j*3;
 				//cout<<"xAccelero"<<i<<","<<j<<" = "<<uAcceleroTab[j][0]<< endl;
@@ -390,10 +394,10 @@ cout<<"+++++++++++START++++++++++"<<endl;
 				//cout <<"=====================================" << endl;
 
 				//LightHouse Simulation
-				uLightHTab[0]=i*4;	//Linear movement
-				uLightHTab[1]=i*4;
-				//uLightHTab[j][0]=circ[i*4];	//Circular movement
-				//uLightHTab[j][1]=circ[i*4];
+				//uLightHTab[0]=i*4;	//Linear movement
+				//uLightHTab[1]=i*4;
+				uLightHTab[0]=circX[i*4];	//Circular movement
+				uLightHTab[1]=circY[i*4];
 				sULightHTab[j][0]=sULightHTab[0][0]+5*j;
 				sULightHTab[j][1]=sULightHTab[0][1]+5*j;
 				//cout<<"xLightH"<<i<<","<<j<<" = "<<uLightHTab[0]<< endl;
@@ -404,8 +408,8 @@ cout<<"+++++++++++START++++++++++"<<endl;
 				result = linearKFDD(uAcceleroTab[j], sUAcceleroTab[j], uLightHTab, sULightHTab[j], result[0], result[1]);
 
 				//cout << "x"<<i<<"  "<< result[0] << "\nsx"<<i<<" " << result[1] <<"\n======"<< endl;
-				//cout << t <<" , "<< result[0][0] << " , "<< result[0][1] <<" , "<< result[1][0] << " , "<< result[1][1] << endl;
-				cout << t << endl;
+				//cout << circX[t] <<" , "<< result[0][0] << " , "<< result[1][0] <<" , "<< circY[t] <<" , "<< result[0][1] << " , "<< result[1][1] << endl;
+				cout << result[1][1] << endl;
 
 				//cout << "vvvvvvvvvvvvvvvvvvvvvvvvvv" <<endl;
 				//cout << "x  & y  : "<< result[0][0] << " & "<< result[0][1] << endl;
