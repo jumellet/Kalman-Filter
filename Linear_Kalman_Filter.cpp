@@ -3,7 +3,7 @@
 // Author      : Julien
 // Version     :
 // Copyright   : Your copyright notice
-// Description : KF linear  1D
+// Description : KF linear  1D & 2D
 //============================================================================
 
 //#include <graphics.h>
@@ -29,10 +29,13 @@ float *linearKFD(float xAccelero, float sXAccelero, float xLightH, float sXLight
 	//Update
 	//K=xEst/(xEst+sXTrue);
 	//K=sXEst/(sXEst+sXTrue);
+
 	K=sXEst/(sXEst+sXLightH);
 	//cout << "K = " <<K<< endl;
-	xTrue=(xAccelero*sXLightH + xLightH*sXAccelero) / (sXAccelero + sXLightH);
+	xTrue=(xEst*sXLightH + xLightH*sXEst) / (sXEst + sXLightH);
 				//weighted average for a 1D filter
+	//vvvvvv New covariance to test vvvvvv !!!!!!!
+	//sXTrue = (1-K*sXTrue)*sXEst;
 	sXTrue=(1-K)*sXEst;
 
 	float *normXTrue = new float[2];
@@ -51,7 +54,7 @@ float *linearKFD(float xAccelero, float sXAccelero, float xLightH, float sXLight
 float **linearKFDD(float *uAccelero, float *sUAccelero, float *uLightH, float *sULightHI, float *uTrue, float *sUTrueI)
 {
 	int i,j ;	//allows the increment on for loops
-	float *uEst = new float[2];		//u estimated
+	float *uEst = new float[2];		//u estimated (=u predicted)
 	float **sUEst = new float*[2];	//and the matrix u of covariances associated
 	sUEst[0] = new float[2];
 	sUEst[1] = new float[2];
@@ -67,13 +70,22 @@ float **linearKFDD(float *uAccelero, float *sUAccelero, float *uLightH, float *s
 	float **sULightH = new float*[2];	//matrix sULightH covariances
 	sULightH[0] = new float[2];
 	sULightH[1] = new float[2];
+	float **I = new float*[2];	//Identity matrix
+	I[0] = new float[2];
+	I[1] = new float[2];
+	I[0][0]=1; I[0][1]=0; I[1][0]=0; I[1][1]=1;
 
 	//PREDICT (which normally follows a mathematical law, but here the prediction is given by IMU)
 		//Also there is the construction of covariances matrix of sUEst
 	for (i=0; i<2; i++){
 		uEst[i]=uAccelero[i];
 		for (j=0; j<2; j++){
-			sUEst[i][j]=sqrt(sUAccelero[i]) * sqrt(sUAccelero[j]);
+			if (i==j){
+				sUEst[i][j]=sqrt(sUAccelero[i]) * sqrt(sUAccelero[j]);
+			}
+			else{
+				sUEst[i][j]=0;
+			}
 			//cout << "uEst"<<i<<" = "<< uEst[i] << endl;
 			//cout << "sUEst"<<i<<","<<j<<" = "<< sUEst[i][j] << endl;
 		}
@@ -81,62 +93,68 @@ float **linearKFDD(float *uAccelero, float *sUAccelero, float *uLightH, float *s
 		//Construction of sUTrue an sULightH, the covariances matrix from sUTrueI
 	for (i=0; i<2; i++){
 		for (j=0; j<2; j++){
-			sULightH[i][j] = sqrt(sULightHI[i]) * sqrt(sULightHI[j]);
+			//sULightH[i][j] = sqrt(sULightHI[i]) * sqrt(sULightHI[j]);
 			if (i==j){
 				sUTrue[i][j] = sqrt(sUTrueI[i]) * sqrt(sUTrueI[j]);
-				//sULightH[i][j] = sqrt(sULightHI[i]) * sqrt(sULightHI[j]);
+				sULightH[i][j] = sqrt(sULightHI[i]) * sqrt(sULightHI[j]);
 			}
 			else {
 				sUTrue[i][j] = 0;
-				//sULightH[i][j] = 0;
+				sULightH[i][j] = 0;
 			}
-			cout << "sUTrue"<<i<<","<<j<<" = "<< sUTrue[i][j]<< endl;
-			cout << "sULightH"<<i<<","<<j<<" = "<< sULightH[i][j]<< endl;
+			//cout << "sUTrue"<<i<<","<<j<<" = "<< sUTrue[i][j]<< endl;
+			//cout << "sULightH"<<i<<","<<j<<" = "<< sULightH[i][j]<< endl;
 		}
 	}
-		//^^^^Test with another covariance (not covariance put diag) construction^^^^
 
 	//UPDATE
 
 		//coefficient of the 2D matricial inverse, it's also Innovation (or residual) covariance
+	/*
 	float coefK = 1 / ((sUEst[0][0]+sUTrue[0][0])*(sUEst[1][1]+sUTrue[1][1]) - (sUEst[0][1]+sUTrue[0][1])*(sUEst[1][0]+sUTrue[1][0]));
 	tempMat[0][0]=sUEst[1][1]+sUTrue[1][1];
 	tempMat[0][1]=-sUEst[0][1]-sUTrue[0][1];
 	tempMat[1][0]=-sUEst[1][0]-sUTrue[1][0];
 	tempMat[1][1]=sUEst[0][0]+sUTrue[0][0];
-	/*float coefK = 1 / ((sUEst[0][0]+sULightH[0][0])*(sUEst[1][1]+sULightH[1][1]) - (sUEst[0][1]+sULightH[0][1])*(sUEst[1][0]+sULightH[1][0]));
+	*/
+
+	float coefK = 1 / ((sUEst[0][0]+sULightH[0][0])*(sUEst[1][1]+sULightH[1][1]) - (sUEst[0][1]+sULightH[0][1])*(sUEst[1][0]+sULightH[1][0]));
 	tempMat[0][0]=sUEst[1][1]+sULightH[1][1];
 	tempMat[0][1]=-sUEst[0][1]-sULightH[0][1];
 	tempMat[1][0]=-sUEst[1][0]-sULightH[1][0];
-	tempMat[1][1]=sUEst[0][0]+sULightH[0][0];*/
+	tempMat[1][1]=sUEst[0][0]+sULightH[0][0];
 		//Calculus of Kalman gain K
 	for (i=0; i<2; i++){
 		for (j=0; j<2; j++){
+			//Multiply it by sUEst and uTrue.transpose
+
 			K[i][j] = coefK * (sUEst[i][0]*tempMat[0][j] + sUEst[i][1]*tempMat[1][j]);
-			cout << "K"<<i<<","<<j<<" = "<<K[i][j]<< endl;
+			//cout << "K"<<i<<","<<j<<" = "<<K[i][j]<< endl;
+			//cout << "S"<<i<<","<<j<<" = "<<tempMat[i][j]<< endl;
 		}
 	}
 		//Calculus of uTrue
 	for (i=0; i<2; i++){
-		uTrue[i] = uEst[i] + (K[i][0]*(uLightH[0]-uEst[0]) + K[i][1]*(uLightH[1]-uEst[1]))   ;
-		cout << "uTrue"<<i<<" = "<<uTrue[i]<< endl;
+		//uTrue[i] = uEst[i] + (K[i][0]*(uLightH[0]-uEst[0]) + K[i][1]*(uLightH[1]-uEst[1]))   ;
+		//uTrue[i] += K[i][i] * (uLightH[i] - uEst[i]);
+		//vvvv HERE uTrue doesn't realy follow KF Algorithm, but allow good results
+		uTrue[i] = uEst[i] + K[i][i] * (uEst[i] - uLightH[i]);
+		//cout << "uLightH"<<i<<" = "<<uLightH[i]<< endl;
+		//cout << "uEst"<<i<<" = "<<uEst[i]<< endl;
+		//cout << "uTrue"<<i<<" = "<<uTrue[i]<< endl;
 	}
-	cout <<"=====================================" << endl;
+	//cout <<"=====================================" << endl;
 		//Calculus of sUTrue
 	for (i=0; i<2; i++){
 		for (j=0; j<2; j++){
-			tempMat[i][j] =
-			sUTrue[i][j] = sUEst[i][j] - (K[i][0]*sUEst[0][j] + K[i][1]*sUEst[1][j]) ;
-			cout << "sUTrue"<<i<<","<<j<<" = "<<sUTrue[i][j]<< endl;
+			//sUTrue[i][j] = sUEst[i][j] - (K[i][0]*sUEst[0][j] + K[i][1]*sUEst[1][j]) ;
+			tempMat[i][j] = (I[i][j]-K[i][j]);
+			sUTrue[i][j] = tempMat[i][0]*sUEst[0][j] + tempMat[i][1]*sUEst[1][j];
+			//cout << "sUTrue"<<i<<","<<j<<" = "<<sUTrue[i][j]<< endl;
 		}
 	}
-	cout <<"=====================================" << endl;
-/*
-	K=xEst/(xEst+sXTrue);
-	xTrue=(xAccelero*sXLightH + xLightH*sXAccelero) / (sXAccelero + sXLightH);
-				//weighted average for a 1D filter
-	sXTrue=(1-K)*sXEst;
-*/
+	//cout <<"=====================================" << endl;
+
 	float **normUTrue = new float*[2];
 	normUTrue[0] = new float[2];
 	normUTrue[0][0] = uTrue[0];
@@ -145,12 +163,16 @@ float **linearKFDD(float *uAccelero, float *sUAccelero, float *uLightH, float *s
 	normUTrue[1][0] = sUTrue[0][0];
 	normUTrue[1][1] = sUTrue[1][1];
 
-	cout << "normUTrue [0] : " << normUTrue[0][0] <<", "<< normUTrue[0][1] << endl;
-	cout << "normUTrue [1] : " << normUTrue[1][0] <<", "<< normUTrue[1][1] << endl;
+	//cout << "normUTrue [0] : " << normUTrue[0][0] <<", "<< normUTrue[0][1] << endl;
+	//cout << "normUTrue [1] : " << normUTrue[1][0] <<", "<< normUTrue[1][1] << endl;
 
 	delete[] K[0];
 	delete[] K[1];
 	delete[] K;
+
+	delete[] I[0];
+	delete[] I[1];
+	delete[] I;
 
 	delete[] tempMat[0];
 	delete[] tempMat[1];
@@ -274,7 +296,7 @@ int main() {
 			int t = j+i*4; //Instants t
 
 			//IMU Simulation
-			//xAcceleroTab[j]=t*1.2;	//Linear movement
+			//xAcceleroTab[j]=i*4+j*1.2;	//Linear movement
 			xAcceleroTab[j]=circ[t]*1.2;	//Circular movement
 			sXAcceleroTab[j]=sXAcceleroTab[0]+j*5;
 			//cout<<xAcceleroTab[i]<<", "<<sXAcceleroTab[i]<<endl;
@@ -296,8 +318,9 @@ int main() {
 //===========================================================
 //LINEAR KALMAN FILTER 2D
 //===========================================================
+cout<<"+++++++++++START++++++++++"<<endl;
 
-	//INITIALISATION
+//INITIALISATION
 	float **result = new float*[2]; //Matrix to return uTrue & sUTrue (respectively u vector calculated and his covariance)
 	result[0] = new float[2];
 	result[0][0] = 0.0;	//uTrue is initialized to x=y=0
@@ -307,37 +330,113 @@ int main() {
 	result[1][1] = 20.0;
 
 	//IMU Simulation
-	float *uAccelero = new float[2];
-	uAccelero[0] = 0;
-	uAccelero[1] = 0;
-	float *sUAccelero = new float[2];
-	sUAccelero[0] = 40;
-	sUAccelero[1] = 40;
+	float **uAcceleroTab = new float*[4];	//Matrix of 4 coordinates of points observed
+	uAcceleroTab[0] = new float[2];
+	uAcceleroTab[1] = new float[2];
+	uAcceleroTab[2] = new float[2];
+	uAcceleroTab[3] = new float[2];
+	uAcceleroTab[0][0] = 0.0;
+	uAcceleroTab[0][1] = 0.0;
+	/*
+	uAcceleroTab[0][0] = 0.0-4.0;
+	uAcceleroTab[0][1] = 0.0-4.0;
+
+	for(int i=1; i<=4; i++){
+		uAcceleroTab[i][0]=i*1.2-4.0;
+		uAcceleroTab[i][1]=i*1.2-4.0;
+	}*/
+
+
+	float **sUAcceleroTab = new float*[4];	//Matrix of 4 covariances associated of points observed
+	sUAcceleroTab[0] = new float[2];
+	sUAcceleroTab[1] = new float[2];
+	sUAcceleroTab[2] = new float[2];
+	sUAcceleroTab[3] = new float[2];
+	sUAcceleroTab[0][0] = 20;
+	sUAcceleroTab[0][1] = 20;
 
 	//Light House Simulation
-	float *uLightH = new float[2];
-	uLightH[0] = 10;
-	uLightH[1] = 10;
-	float *sULightH = new float[2];
-	sULightH[0] = 20;
-	sULightH[1] = 20;
+	float *uLightHTab = new float[2];
+	uLightHTab[0] = 0;
+	uLightHTab[1] = 0;
+	float **sULightHTab = new float*[2];
+	sULightHTab[0] = new float[2];
+	sULightHTab[1] = new float[2];
+	sULightHTab[2] = new float[2];
+	sULightHTab[3] = new float[2];
+	sULightHTab[0][0] = 20;
+	sULightHTab[0][1] = 20;
+
 
 	//Measurement on KF Algorithm
-	result = linearKFDD(uAccelero, sUAccelero, uLightH, sULightH, result[0], result[1]);
+	for (int i=0; i<=4; i++){
+			for (int j=0; j<=3; j++){
+				int t = j+i*4; //Instants t
 
-	cout << "x  & y  : "<< result[0][0] << " & "<< result[0][1] << endl;
-	cout << "sX & sY : "<< result[1][0] << " & "<< result[1][1] << endl;
+				//cout<<t<<" "<<t<<"+++++++ITERATION+++++++"<<t<<" "<<t<<endl;
 
-	delete[] uAccelero;
-	delete[] sUAccelero;
+				//IMU Simulation
+				uAcceleroTab[j][0]=i*4+j*1.2;	//Linear movement
+				uAcceleroTab[j][1]=i*4+j*1.2;
+				//uAcceleroTab[j][0]=circ[t]*1.2;	//Circular movement
+				//uAcceleroTab[j][1]=circ[t]*1.2;
+				sUAcceleroTab[j][0]=sUAcceleroTab[0][0]+j*3;
+				sUAcceleroTab[j][1]=sUAcceleroTab[0][1]+j*3;
+				//cout<<"xAccelero"<<i<<","<<j<<" = "<<uAcceleroTab[j][0]<< endl;
+				//cout<<"yAccelero"<<i<<","<<j<<" = "<<uAcceleroTab[j][1]<< endl;
+				//cout<<"sXAccelero"<<i<<","<<j<<" = "<<sUAcceleroTab[j][0]<< endl;
+				//cout<<"sYAccelero"<<i<<","<<j<<" = "<<sUAcceleroTab[j][1]<< endl;
 
-	delete[] uLightH;
-	delete[] sULightH;
+				//cout <<"=====================================" << endl;
 
+				//LightHouse Simulation
+				uLightHTab[0]=i*4;	//Linear movement
+				uLightHTab[1]=i*4;
+				//uLightHTab[j][0]=circ[i*4];	//Circular movement
+				//uLightHTab[j][1]=circ[i*4];
+				sULightHTab[j][0]=sULightHTab[0][0]+5*j;
+				sULightHTab[j][1]=sULightHTab[0][1]+5*j;
+				//cout<<"xLightH"<<i<<","<<j<<" = "<<uLightHTab[0]<< endl;
+				//cout<<"yLightH"<<i<<","<<j<<" = "<<uLightHTab[1]<< endl;
+				//cout<<"sXLightH"<<i<<","<<j<<" = "<<sULightHTab[j][0]<< endl;
+				//cout<<"sYLightH"<<i<<","<<j<<" = "<<sULightHTab[j][1]<< endl;
+
+				result = linearKFDD(uAcceleroTab[j], sUAcceleroTab[j], uLightHTab, sULightHTab[j], result[0], result[1]);
+
+				//cout << "x"<<i<<"  "<< result[0] << "\nsx"<<i<<" " << result[1] <<"\n======"<< endl;
+				//cout << t <<" , "<< result[0][0] << " , "<< result[0][1] <<" , "<< result[1][0] << " , "<< result[1][1] << endl;
+				cout << t << endl;
+
+				//cout << "vvvvvvvvvvvvvvvvvvvvvvvvvv" <<endl;
+				//cout << "x  & y  : "<< result[0][0] << " & "<< result[0][1] << endl;
+				//cout << "sX & sY : "<< result[1][0] << " & "<< result[1][1] << endl;
+				//cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^" <<endl;
+
+			}
+	}
+	//result = linearKFDD(uAccelero, sUAccelero, uLightH, sULightH, result[0], result[1]);
+
+	//cout << "x  & y  : "<< result[0][0] << " & "<< result[0][1] << endl;
+	//cout << "sX & sY : "<< result[1][0] << " & "<< result[1][1] << endl;
+
+	/*
+	for (int i=0 ; i<4 ; i++){
+		delete[] uAcceleroTab[i];
+		delete[] sUAcceleroTab[i];
+		delete[] sULightHTab[i];
+	}
+	delete[] uAcceleroTab;
+	delete[] sUAcceleroTab;
+
+	delete[] uLightHTab;
+	delete[] sULightHTab;
+*/
 	delete[] result[0];
 	delete[] result[1];
 
 	delete[] result;
+
+	cout<<"++++++++++++END+++++++++++"<<endl;
 
 	return 0;
 }
