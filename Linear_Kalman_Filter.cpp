@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <iostream>
 using namespace std;
+oment où vous calculez le point le plus proche de leur intersection pour deux vecteurs se croisant dans l'espace.
+
 
 //===========================================================
 //FUNCTION OF 1D LINEAR KALMAN FILTER
@@ -48,6 +50,104 @@ float *linearKFD(float xAccelero, float sXAccelero, float xLightH, float sXLight
 //===========================================================
 //FUNCTION OF 2D LINEAR KALMAN FILTER
 //===========================================================
+
+//2x2 Matrix Multiplication
+float **MatMultiplicationDD(float **A, float **B){
+	float **C = new float*[2];
+	C[0] = new float[2];
+	C[1] = new float[2];	
+
+	for (int i=0; i<2; i++){
+		for (int j=0; j<2; j++){
+			C[i][j] = A[i][0]*B[0][j] + A[i][1]*B[1][j];
+		}
+	}
+	return C;
+}
+
+//3x3 Matrix Multiplication
+float **MatMultiplicationDDD(float **A, float **B){
+	float **C = new float*[3];
+	C[0] = new float[3];
+	C[1] = new float[3];
+	C[2] = new float[3];
+
+	for (int i=0; i<3; i++){
+		for (int j=0; j<3; j++){
+			C[i][j] = A[i][0]*B[0][j] + A[i][1]*B[1][j] + A[i][2]*B[2][j];
+		}
+	}
+	return C;
+}
+
+//2x2 Matrix Inversion
+float **MatInverseDD(float **A){
+	float **C = new float*[2];
+	C[0] = new float[2];
+	C[1] = new float[2];
+	
+	float det_C = A[0][0]*A[1][1] - A[0][1]*A[1][0];
+
+	C[0][0] = 1/det_C * A[1][1];
+	C[0][1] = -1/det_C * A[0][1];
+	C[1][0] = -1/det_C * A[1][0];
+	C[1][1] = 1/det_C * A[0][0];
+
+	return C;
+
+}
+
+//3x3 Matrix Inversion by Sarrus
+float **MatInverseDDD(float **A){
+	float **C = new float*[3];
+	C[0] = new float[3];
+	C[1] = new float[3];
+	C[2] = new float[3];
+
+	float det_C = A[0][0]*A[1][1]*A[2][2] + A[0][1]*A[1][2]*A[2][0] + A[0][2]*A[1][0]*A[2][1] - A[0][2]*A[1][1]*A[2][0] - A[0][0]*A[1][2]*A[2][1] - A[0][1]*A[1][0]*A[2][2];
+
+	C[0][0] = 1/det_C * (A[1][1]*A[2][2] - A[1][2]*A[2][1]);
+	C[0][1] = 1/det_C * (A[0][2]*A[2][1] - A[0][1]*A[2][2]);
+	C[0][2] = 1/det_C * (A[0][1]*A[1][2] - A[0][2]*A[1][1]);
+	C[1][0] = 1/det_C * (A[1][2]*A[2][0] - A[1][0]*A[2][2]);
+	C[1][1] = 1/det_C * (A[0][0]*A[2][2] - A[0][2]*A[2][0]);
+	C[1][2] = 1/det_C * (A[0][2]*A[1][0] - A[0][0]*A[1][2]);
+	C[2][0] = 1/det_C * (A[1][0]*A[2][1] - A[1][1]*A[2][0]);
+	C[2][1] = 1/det_C * (A[0][1]*A[2][0] - A[0][0]*A[2][1]);
+	C[2][2] = 1/det_C * (A[0][0]*A[1][1] - A[0][1]*A[1][0]);
+	
+	return C;	
+}
+
+//2x2 Matrix Transpose
+float **MatTransposeDD(float **A){
+	float **C = new float*[2];
+	C[0] = new float[2];
+	C[1] = new float[2];
+
+	C[0][0] = A[0][0];
+	C[0][1] = A[1][0];
+	C[1][0] = A[0][1];
+	C[1][1] = A[1][1];
+
+	return C;
+}
+
+//3x3 Matrix Transpose
+float **MatTransposeDDD(float **A){
+	float **C = new float*[3];
+	C[0] = new float[3];
+	C[1] = new float[3];
+	C[2] = new float[3];
+
+	for (int i=0; i<3; i++){
+		for (j=0; j<3; j++){
+			C[i][j] = A[j][i] ;
+		}
+	}
+	return C;
+}
+
 //Vectors have to be input
 
 
