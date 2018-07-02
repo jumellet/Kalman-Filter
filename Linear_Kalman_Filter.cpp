@@ -13,8 +13,6 @@
 #include <stdlib.h>
 #include <iostream>
 using namespace std;
-oment où vous calculez le point le plus proche de leur intersection pour deux vecteurs se croisant dans l'espace.
-
 
 //===========================================================
 //FUNCTION OF 1D LINEAR KALMAN FILTER
