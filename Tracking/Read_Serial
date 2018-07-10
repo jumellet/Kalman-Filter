@@ -1,0 +1,10 @@
+import serial
+import time
+
+port = serial.Serial(port='COM5', baudrate=230400, timeout=0)
+
+timing = str(port.readline())
+#timing = port.readline()
+
+while 1 :
+   print(timing)

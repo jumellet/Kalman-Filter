@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
 import glob
-import serial
-import sys
 import platform
+import sys
+
+import serial
 
 
 ###############################################################################
@@ -119,4 +120,3 @@ def decodeTime(port):
 ###############################################################################
 if __name__ == "__main__":
     main()
-

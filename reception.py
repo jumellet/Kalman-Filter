@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
 import glob
-import serial
-import sys
 import platform
+import sys
+
+import serial
 
 
 ###############################################################################
@@ -25,11 +26,11 @@ def serial_init():
     elif "Darwin" in PLATFORM:
         SERIAL_PATH = "/dev/tty.usb*"   # TODO: test it
     else: # Windows
-        SERIAL_PATH = "COM*"            # TODO: test it
+        SERIAL_PATH = "COM5"            # TODO: test it
 
     devices = glob.glob(SERIAL_PATH)
 
-    port = serial.Serial(devices[0], 115200 * 2)
+    port = serial.Serial('COM5', 115200 * 2)
     success = port.isOpen()
 
     if success:
@@ -119,4 +120,3 @@ def decodeTime(port):
 ###############################################################################
 if __name__ == "__main__":
     main()
-
