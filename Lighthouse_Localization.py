@@ -281,31 +281,16 @@ for line in file :
 	#print("axis = ", axis)
 	#print("centroids = ", centroids)
 	total_count += 1
-
-	if (base == 0 and axis == 0) :
-		samples1[0][0] += centroids[0]
-		samples1[0][1] += centroids[1]
-		samples1[0][2] += centroids[2]
-		samples1[0][3] += centroids[3]
-		count[0] += 1
-	if (base == 0 and axis == 1) :
-		samples1[1][0] += centroids[0]
-		samples1[1][1] += centroids[1]
-		samples1[1][2] += centroids[2]
-		samples1[1][3] += centroids[3]
-		count[1] += 1
-	if (base == 1 and axis == 0) :
-		samples2[0][0] += centroids[0]
-		samples2[0][1] += centroids[1]
-		samples2[0][2] += centroids[2]
-		samples2[0][3] += centroids[3]
-		count[2] += 1
-	if (base == 1 and axis == 1) :
-		samples2[1][0] += centroids[0]
-		samples2[1][1] += centroids[1]
-		samples2[1][2] += centroids[2]
-		samples2[1][3] += centroids[3]
-		count[3] += 1
+	
+	import numpy
+	samples = numpy.zeros((3,4))
+	
+	for i in range(4):
+		samples[base][axis][i] += centroids[i]
+	
+	id = base*2 + axis
+	count[id] += 1	
+	
 
 # Check that we have enough of each
 # at least 10% of the samples must be from this one
@@ -349,6 +334,9 @@ def ptsToNormal(A, B, C):
 
 # This function transform 4 points describing a non perfect plan into an orthonormal
 def ptsToOrth(ptsTab4):
+	"""
+	vecNormal[i] = ptsToNormal(ptsTab4[i], ptsTab4[(i+1)%4], ptsTab4[(i+2)%4])
+	"""
 	vecNormal0 = ptsToNormal(ptsTab4[0], ptsTab4[1], ptsTab4[2])
 	vecNormal1 = ptsToNormal(ptsTab4[1], ptsTab4[2], ptsTab4[3])
 	vecNormal2 = ptsToNormal(ptsTab4[2], ptsTab4[3], ptsTab4[0])
