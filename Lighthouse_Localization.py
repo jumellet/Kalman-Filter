@@ -94,18 +94,20 @@ file.close()
 """
 
 # Make better measurement of these distances
-pos_ = [
+pos = [
 	[+20,-20,0],
 	[-20,-20,0],
 	[-20,+20,0],
 	[+20,+20,0],
 ]
+"""
 pos = [
 	[-20,+20,0],
 	[+20,+20,0],
 	[-20,-20,0],
 	[+20,-20,0],
 ]
+"""
 
 # Compute the distances between each of the sensors
 # WHY THE "N" ???
@@ -128,10 +130,16 @@ r23 = len(vecsub(pos[2],pos[3]))
 # and then compute the angles between them
 # TRANSLATE --> SAMPLES = CENTROIDS && ID = BASE
 def lighthouse_pos(samples):
-	v0 = ray(samples[0][0] * pi / 8333, samples[1][0] * pi / 8333)
-	v1 = ray(samples[0][1] * pi / 8333, samples[1][1] * pi / 8333)
-	v2 = ray(samples[0][2] * pi / 8333, samples[1][2] * pi / 8333)
-	v3 = ray(samples[0][3] * pi / 8333, samples[1][3] * pi / 8333)	
+	# Order the centoids of diodes to their position
+	v0 = ray(samples[0][3] * pi / 8333.3333333, samples[1][3] * pi / 8333.3333333)
+	v1 = ray(samples[0][2] * pi / 8333.3333333, samples[1][2] * pi / 8333.3333333)
+	v2 = ray(samples[0][0] * pi / 8333.3333333, samples[1][0] * pi / 8333.3333333)
+	v3 = ray(samples[0][1] * pi / 8333.3333333, samples[1][1] * pi / 8333.3333333)	
+	
+	#v0 = ray(samples[0][0] * pi / 8333, samples[1][0] * pi / 8333)
+	#v1 = ray(samples[0][1] * pi / 8333, samples[1][1] * pi / 8333)
+	#v2 = ray(samples[0][2] * pi / 8333, samples[1][2] * pi / 8333)
+	#v3 = ray(samples[0][3] * pi / 8333, samples[1][3] * pi / 8333)	
 	v01 = dot(v0,v1)
 	v02 = dot(v0,v2)
 	v03 = dot(v0,v3)
@@ -142,12 +150,14 @@ def lighthouse_pos(samples):
 	#print("v1 = ", v1)
 	#print("v2 = ", v2)
 	#print("v3 = ", v3)
+	
 	print("v01 = ", acos(v01) * 180 / pi, " deg")
 	print("v02 = ", acos(v02) * 180 / pi, " deg")
 	print("v03 = ", acos(v03) * 180 / pi, " deg")
 	print("v12 = ", acos(v12) * 180 / pi, " deg")
 	print("v13 = ", acos(v13) * 180 / pi, " deg")
 	print("v23 = ", acos(v23) * 180 / pi, " deg")
+	
 
 	k0, k1, k2, k3 = symbols('k0, k1, k2, k3')
 	sol = nsolve((
@@ -172,6 +182,7 @@ def lighthouse_pos(samples):
 	p2 = mpfToFloat3(vecmul(v2,sol[2]))
 	p3 = mpfToFloat3(vecmul(v3,sol[3]))
 	
+	
 	# Order each vector
 	def OrderVec(vec):
 		temp = vec[2]
@@ -179,6 +190,7 @@ def lighthouse_pos(samples):
 		vec[1] = vec[0]
 		vec[0] = temp
 		return vec
+	
 	p0 = vecToPts(OrderVec(p0))
 	p1 = vecToPts(OrderVec(p1))
 	p2 = vecToPts(OrderVec(p2))
@@ -214,7 +226,7 @@ def lighthouse_pos(samples):
 		k2**2 + k3**2 - 2*k2*k3*v23 - r23**2,
 	),
 		(k0, k1, k2, k3),
-	        (1000,1000,1000,1000),    #Why this vector ???
+	        (0,0,0,0),    #Why this vector ???
 		verify=False  # ignore tolerance of solution
 	)
 
@@ -342,16 +354,22 @@ def ptsToOrth(ptsTab4):
 	vecNormal2 = ptsToNormal(ptsTab4[2], ptsTab4[3], ptsTab4[0])
 	vecNormal3 = ptsToNormal(ptsTab4[3], ptsTab4[0], ptsTab4[1])
 	
-	
+	vecNormal = [0, 0, 0]
+	for i in range(3):
+		vecNormal[i] = (vecNormal0[i] + vecNormal1[i] + vecNormal2[i] + vecNormal3[i]) / 4
+		
+	"""
 	print("Normal vector = ",vecNormal0)
 	print("Normal vector = ",vecNormal1)
 	print("Normal vector = ",vecNormal2)
 	print("Normal vector = ",vecNormal3)
+	"""
 	
-	return 0
+	return unitv(vecNormal)
 	#return a 3x3 Matrix   
 
-# Function that average the for diodes to make the vector centered
+"""
+# Function that average the four diodes to make the vector centered
 def Average4pts(ptsTab4):
 	newPt = [0,0,0]
 	for i in range(4) :
@@ -361,16 +379,36 @@ def Average4pts(ptsTab4):
 		newPt[k] = newPt[k] / 4
 	return newPt
 
-print("Averaged Vec : ",Average4pts(pts4_1))
+print("Averaged Vec 1 : ",Average4pts(pts4_1))
+print("Averaged Vec 2 : ",Average4pts(pts4_2))
+"""
 
-#ptsToOrth(pts4_2)
-#ptsToOrth([[0,0,0],[0,1,0],[1,1,0],[1,0,0]])
+#print(ptsToOrth(pts4_1))
+
+# HT bases explained into the LH bases
+xyz_1 = [[0, 0, 0],[0, 0, 0],[0, 0, 0]]
+xyz_1[2] = ptsToOrth(pts4_1)
+xyz_1[0] = unitv(vecsub(pts4_1[1], pts4_1[2]))
+xyz_1[1] = cross(xyz_1[2], xyz_1[0])
+
+xyz_2 = [[0, 0, 0],[0, 0, 0],[0, 0, 0]]
+xyz_2[2] = ptsToOrth(pts4_2)
+xyz_2[0] = unitv(vecsub(pts4_2[1], pts4_2[2]))
+xyz_2[1] = cross(xyz_2[2], xyz_2[0])
+"""
+[[-0.84212949  0.2901653   0.45455696]
+ [-0.1154597  -0.92004551  0.37340373]
+ [ 0.50342283  0.26994411  0.82078964]]
+ """
 
 # Here we search the rotation matrix of the LH 1 & 2
 # Base of Tracker
-#XYZ = np.array([unitv(vecsub(pts4_1[0], pts4_1[1])), unitv(vecsub(pts4_1[0], pts4_1[2])), unitv(cross(vecsub(pts4_1[0], pts4_1[1]), vecsub(pts4_1[0], pts4_1[2])))])
-#Id = np.array([[1,0,0],[0,1,0],[0,0,1]])
-#print(XYZ)
+XYZ = np.array(xyz_1)
+Id = np.array([[1,0,0],[0,1,0],[0,0,1]])
+print(XYZ)
+XYZ_ = np.array(xyz_2)
+Id = np.array([[1,0,0],[0,1,0],[0,0,1]])
+print(XYZ_)
 
 # This for an orthogonal matrix is equivalent to Transpose XYZ
 #MatRot = np.linalg.solve(XYZ, Id)
