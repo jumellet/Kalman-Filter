@@ -255,7 +255,7 @@ samples2 = [[0,0,0,0],
 # Throw away any old serial data
 #for n in range(0,200):
 #	line = stdin.readline()
-file = open("data.txt","r")
+file = open("data_J2.txt","r")
 
 for line in file :
 	#line = stdin.readline()
