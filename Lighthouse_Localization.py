@@ -118,14 +118,7 @@ r03 = N(len(vecsub(pos[0],pos[3])))
 r12 = N(len(vecsub(pos[1],pos[2])))
 r13 = N(len(vecsub(pos[1],pos[3])))
 r23 = N(len(vecsub(pos[2],pos[3])))
-"""
-r01 = len(vecsub(pos[0],pos[1]))
-r02 = len(vecsub(pos[0],pos[2]))
-r03 = len(vecsub(pos[0],pos[3]))
-r12 = len(vecsub(pos[1],pos[2]))
-r13 = len(vecsub(pos[1],pos[3]))
-r23 = len(vecsub(pos[2],pos[3]))
-"""
+
 # Translate them into angles, compute each ray vector for each sensor
 # and then compute the angles between them
 # TRANSLATE --> SAMPLES = CENTROIDS && ID = BASE
@@ -246,16 +239,13 @@ def lighthouse_pos(samples):
 # If we have a good view this should be just a few seconds.
 total_count = 0
 count = [0,0,0,0]
-samples1 = [[0,0,0,0],
-            [0,0,0,0]]
-samples2 = [[0,0,0,0],
-            [0,0,0,0]]
-
+samples1 = np.zeros((2,4))
+samples2 = np.zeros((2,4))
 
 # Throw away any old serial data
 #for n in range(0,200):
 #	line = stdin.readline()
-file = open("data_J2.txt","r")
+file = open("data.txt","r")
 
 for line in file :
 	#line = stdin.readline()
@@ -277,19 +267,40 @@ for line in file :
 	centroids[3] = centroids[3][1:]
 	centroids[3] = float(centroids[3][:-4])
 	
-	#print("base = ", base)
-	#print("axis = ", axis)
-	#print("centroids = ", centroids)
+	print("base = ", base)
+	print("axis = ", axis)
+	print("centroids = ", centroids)
 	total_count += 1
 	
-	import numpy
-	samples = numpy.zeros((3,4))
+	#samples1 = np.zeros((2,4))
+	#samples2 = np.zeros((2,4))
 	
-	for i in range(4):
-		samples[base][axis][i] += centroids[i]
 	
-	id = base*2 + axis
-	count[id] += 1	
+	# Put centroids into samples
+	if (base == 0 and axis == 0) :
+		samples1[0][0] += centroids[0]
+		samples1[0][1] += centroids[1]
+		samples1[0][2] += centroids[2]
+		samples1[0][3] += centroids[3]
+		count[0] += 1
+	if (base == 0 and axis == 1) :
+		samples1[1][0] += centroids[0]
+		samples1[1][1] += centroids[1]
+		samples1[1][2] += centroids[2]
+		samples1[1][3] += centroids[3]
+		count[1] += 1
+	if (base == 1 and axis == 0) :
+		samples2[0][0] += centroids[0]
+		samples2[0][1] += centroids[1]
+		samples2[0][2] += centroids[2]
+		samples2[0][3] += centroids[3]
+		count[2] += 1
+	if (base == 1 and axis == 1) :
+		samples2[1][0] += centroids[0]
+		samples2[1][1] += centroids[1]
+		samples2[1][2] += centroids[2]
+		samples2[1][3] += centroids[3]
+		count[3] += 1	
 	
 
 # Check that we have enough of each
@@ -300,16 +311,15 @@ fail = False
 print("count = ",count)
 print("total_count = ",total_count)
 
+
+# Divide samples to have an average
 for i in range(4):
-	#if count[i] < total_count / 10:
-	#	print(str(i) + ": too few samples")
-	#	exit(-1)
 	samples1[0][i] /= count[i]
 	
 	samples1[1][i] /= count[i]
 	samples2[0][i] /= count[i]
 	samples2[1][i] /= count[i]
-	print("samples2 0",i," = ",samples2[1][i])
+	print("samples1 1",i," = ",samples1[1][i])
 
 print(samples1)
 print(samples2)
