@@ -8,13 +8,14 @@ from math import pi
 from math import *
 from sys import stdin
 import numpy as np
-#from reception import *
+from reception import *
 
-#port = serial_init()
+port = serial_init()
 #base, axis, centroids = parse_data(port)
 
-#while 1 :
-#    print(parse_data(port))
+while 1 :
+    print(parse_data(port))
+    
 
 
 # The few vector math functions that we need
