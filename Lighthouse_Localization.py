@@ -8,13 +8,14 @@ from math import pi
 from math import *
 from sys import stdin
 import numpy as np
-#from reception import *
+from reception import *
 
-#port = serial_init()
+port = serial_init()
 #base, axis, centroids = parse_data(port)
 
-#while 1 :
-#    print(parse_data(port))
+while 1 :
+    print(parse_data(port))
+    
 
 
 # The few vector math functions that we need
@@ -397,7 +398,7 @@ xyz_2[1] = cross(xyz_2[2], xyz_2[0])
 [[-0.84212949  0.2901653   0.45455696]
  [-0.1154597  -0.92004551  0.37340373]
  [ 0.50342283  0.26994411  0.82078964]]
- """
+"""
 
 # Here we search the rotation matrix of the LH 1 & 2
 # Base of Tracker
