@@ -77,6 +77,7 @@ def vecToPts(vec):
 	vec[2] = -vec[2]
 	return vec
 
+
 ##################################################################
 # The default sensor array is 40mm square
 # This fits easily on a breadboard.
@@ -92,95 +93,75 @@ file.close()
 
 # Make better measurement of these distances
 pos = [
-	[+20,-20,0],
 	[-20,-20,0],
 	[-20,+20,0],
-]
-"""
-pos = [
-	[-20,+20,0],
-	[+20,+20,0],
-	[-20,-20,0],
 	[+20,-20,0],
 ]
-"""
 
-# Compute the distances between each of the sensors
-# WHY THE "N" ???
+# Compute internals vectors of the Tracker
 
-r01 = N(len(vecsub(pos[0],pos[1])))
-r02 = N(len(vecsub(pos[0],pos[2])))
-#r03 = N(len(vecsub(pos[0],pos[3])))
-r12 = N(len(vecsub(pos[1],pos[2])))
-#r13 = N(len(vecsub(pos[1],pos[3])))
-#r23 = N(len(vecsub(pos[2],pos[3])))
+r01 = vecsub(pos[1],pos[0])
+r02 = vecsub(pos[2],pos[0])
+r12 = vecsub(pos[2],pos[1])
 
 # Translate them into angles, compute each ray vector for each sensor
 # and then compute the angles between them
 # TRANSLATE --> SAMPLES = CENTROIDS && ID = BASE
 def lighthouse_pos(samples):
 	# Order the centoids of diodes to their position
-	v0 = ray(samples[0][3] * pi / 8333.3333333, samples[1][3] * pi / 8333.3333333)
-	v1 = ray(samples[0][2] * pi / 8333.3333333, samples[1][2] * pi / 8333.3333333)
-	v2 = ray(samples[0][0] * pi / 8333.3333333, samples[1][0] * pi / 8333.3333333)
-	v3 = ray(samples[0][1] * pi / 8333.3333333, samples[1][1] * pi / 8333.3333333)	
+	v0 = ray(samples[0][0] * pi / 8333.3333333, samples[1][0] * pi / 8333.3333333)
+	v1 = ray(samples[0][1] * pi / 8333.3333333, samples[1][1] * pi / 8333.3333333)
+	v2 = ray(samples[0][2] * pi / 8333.3333333, samples[1][2] * pi / 8333.3333333)
+	
+	def OrderVec(vec):
+		temp = vec[2]
+		vec[2] = vec[1]
+		vec[1] = vec[0]
+		vec[0] = temp
+		return vec
+	
+	# Order coordinates of vectors
+	v0 = OrderVec(v0)
+	v1 = OrderVec(v1)
+	v2 = OrderVec(v2)
 	
 	#v0 = ray(samples[0][0] * pi / 8333, samples[1][0] * pi / 8333)
 	#v1 = ray(samples[0][1] * pi / 8333, samples[1][1] * pi / 8333)
 	#v2 = ray(samples[0][2] * pi / 8333, samples[1][2] * pi / 8333)
-	#v3 = ray(samples[0][3] * pi / 8333, samples[1][3] * pi / 8333)	
+	
 	v01 = dot(v0,v1)
 	v02 = dot(v0,v2)
-	v03 = dot(v0,v3)
 	v12 = dot(v1,v2)
-	v13 = dot(v1,v3)
-	v23 = dot(v2,v3)
-	#print("v0 = ", v0)
-	#print("v1 = ", v1)
-	#print("v2 = ", v2)
-	#print("v3 = ", v3)
+
+	print("v0 = ", v0)
+	print("v1 = ", v1)
+	print("v2 = ", v2)
 	
 	print("v01 = ", acos(v01) * 180 / pi, " deg")
 	print("v02 = ", acos(v02) * 180 / pi, " deg")
-	print("v03 = ", acos(v03) * 180 / pi, " deg")
 	print("v12 = ", acos(v12) * 180 / pi, " deg")
-	print("v13 = ", acos(v13) * 180 / pi, " deg")
-	print("v23 = ", acos(v23) * 180 / pi, " deg")
 	
-
-	k0, k1, k2, k3 = symbols('k0, k1, k2, k3')
-	"""
-	sol = nsolve((
-		k0**2 + k1**2 - 2*k0*k1*v01 - r01**2,
-		k0**2 + k2**2 - 2*k0*k2*v02 - r02**2,
-		k0**2 + k3**2 - 2*k0*k3*v03 - r03**2,
-		k2**2 + k1**2 - 2*k2*k1*v12 - r12**2,
-		k3**2 + k1**2 - 2*k3*k1*v13 - r13**2,
-		k2**2 + k3**2 - 2*k2*k3*v23 - r23**2,
-	),
-		(k0, k1, k2, k3),
-	        (1000,1000,1000,1000),    #Why this vector ???
-		verify=False  # ignore tolerance of solution
-	)
-	"""
-	sol = nsolve((
-	        k0**2 + k1**2 - 2*k0*k1*v01 - r01**2,
-	        k0**2 + k2**2 - 2*k0*k2*v02 - r02**2,
-	        k2**2 + k1**2 - 2*k2*k1*v12 - r12**2
-	        ),
-	             (k0, k1, k2),
-	        (1000,1000,1000),    #Why this vector ???
-	        verify=False  # ignore tolerance of solution
-	        )
+	k0, k1, k2 = symbols('k0, k1, k2')
 	
-
+	k = np.zeros((3,3))
+	
+	for i in range(3):
+		a = np.array([[-v0[i], v1[i], 0], [-v0[i], 0, v2[i]], [0, -v1[i], v2[i]]])
+		print("a ",a)
+		b = np.array([r01[i], r02[i], r12[i]])
+		print("b ",b)
+		K = np.linalg.solve(a, b)
+		print("k ",k[i])
+		k[i] = K
+	
+	sol = k.T
+		
 	print("sol = ",sol)
 
 	# Convet mpf numbers into float
 	p0 = mpfToFloat3(vecmul(v0,sol[0]))
 	p1 = mpfToFloat3(vecmul(v1,sol[1]))
 	p2 = mpfToFloat3(vecmul(v2,sol[2]))
-	#p3 = mpfToFloat3(vecmul(v3,sol[3]))
 	
 	"""
 	# Order each vector
@@ -300,7 +281,7 @@ for i in range(4):
 	samples1[1][i] /= count[i]
 	samples2[0][i] /= count[i]
 	samples2[1][i] /= count[i]
-	print("samples1 1",i," = ",samples1[1][i])
+	#print("samples1 1",i," = ",samples1[1][i])
 
 print(samples1)
 print(samples2)
