@@ -13,9 +13,7 @@ import time
 
 port = serial_init()
 base, axis, centroids, accelerations = parse_data(port)
-print(parse_data(port))
-
-velocityx = np.zeros(2)
+#print(parse_data(port))
 
 # Period of measurement
 T = 1/120
@@ -60,7 +58,7 @@ while 1 :
     
     accelerationX[1] = + accelerations[1]
     accelerationY[1] = - accelerations[0]
-    accelerationZ[1] = - accelerations[2]
+    accelerationZ[1] = - accelerations[2] + 9.81
 
     # First integration
     velocityX[1] = velocityX[0] + accelerationX[0] * 1/120
@@ -71,7 +69,7 @@ while 1 :
     positionY[1] = positionY[0] + velocityY[0] * 1/120
     positionZ[1] = positionZ[0] + velocityZ[0] * 1/120
     
-    #print(positionX[1])
+    print(positionX[1], "  ,  ", positionY[1], "  ,  ", positionZ[1])
     
     # Update previous values
     accelerationX[0] = accelerationX[1]
@@ -84,9 +82,10 @@ while 1 :
     positionY[0] = positionY[1]
     positionZ[0] = positionZ[1]
     
-    
+    if time.clock() >= 5 :
+        break
     #position(accelerations)
     #print(position(accelerations))
     
     #print("time = ",time.clock()," s" )
-    print(time.clock())
+    #print(time.clock())
