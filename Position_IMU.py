@@ -41,8 +41,16 @@ def position(accel):
 """
 
 accelerationX = np.zeros(2)
+accelerationY = np.zeros(2)
+accelerationZ = np.zeros(2)
+
 velocityX = np.zeros(2)
-positionX = np.zeros(2) 
+velocityY = np.zeros(2)
+velocityZ = np.zeros(2)
+
+positionX = np.zeros(2)
+positionY = np.zeros(2)
+positionZ = np.zeros(2)
 
 while 1 :
     #print(parse_data(port))
@@ -51,20 +59,30 @@ while 1 :
     #print(accelerations)
     
     accelerationX[1] = + accelerations[1]
-    #accelerationY[1] = - accelerations[0]
-    # accelerationZ[1] = - accelerations[2]
+    accelerationY[1] = - accelerations[0]
+    accelerationZ[1] = - accelerations[2]
 
     # First integration
     velocityX[1] = velocityX[0] + accelerationX[0] * 1/120
+    velocityY[1] = velocityY[0] + accelerationY[0] * 1/120
+    velocityZ[1] = velocityZ[0] + accelerationZ[0] * 1/120
     # Second integration
     positionX[1] = positionX[0] + velocityX[0] * 1/120
+    positionY[1] = positionY[0] + velocityY[0] * 1/120
+    positionZ[1] = positionZ[0] + velocityZ[0] * 1/120
     
     #print(positionX[1])
     
     # Update previous values
     accelerationX[0] = accelerationX[1]
+    accelerationY[0] = accelerationY[1]
+    accelerationZ[0] = accelerationZ[1]
     velocityX[0] = velocityX[1]
-    positionX[0] = positionX[1]    
+    velocityY[0] = velocityY[1]
+    velocityZ[0] = velocityZ[1]
+    positionX[0] = positionX[1]
+    positionY[0] = positionY[1]
+    positionZ[0] = positionZ[1]
     
     
     #position(accelerations)
