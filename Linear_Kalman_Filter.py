@@ -122,6 +122,7 @@ positionX = np.zeros(2)
 positionY = np.zeros(2)
 positionZ = np.zeros(2)
 
+"""
 while 1 :
     # For IMU
     
@@ -156,12 +157,17 @@ while 1 :
     positionY[0] = positionY[1]
     positionZ[0] = positionZ[1]    
     
+    uAccelero = [positionX[0], positionY[0], positionZ[0]]
     ########################################################################
+    # For LH
+    uLightH = 
+    
+    #########################################################################
     
     # For KF
     result = linearKFDD(uAccelero, sUAccelero, uLightH, sULightH, result[0], result[1]);
     print(result)
-    
+ """   
       
 # Measurement on KF Algorithm
 
