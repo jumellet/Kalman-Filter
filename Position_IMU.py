@@ -10,6 +10,7 @@ from sys import stdin
 import numpy as np
 from reception import *
 import time
+import Position_LH
 
 port = serial_init()
 base, axis, centroids, accelerations = parse_data(port)
@@ -32,9 +33,25 @@ positionX = np.zeros(2)
 positionY = np.zeros(2)
 positionZ = np.zeros(2)
 """
-positionX = np.zeros(2)
-positionY = np.zeros(2)
-positionZ = np.zeros(2)
+if (base == 0 and axis == 0) :
+    h10 = centroids[0] * pi / 8333
+    h13 = centroids[3] * pi / 8333
+    
+if (base == 0 and axis == 1) :
+    v10 = centroids[0] * pi / 8333
+    v13 = centroids[3] * pi / 8333
+    
+if (base == 1 and axis == 0) :
+    h20 = centroids[0] * pi / 8333
+    h23 = centroids[3] * pi / 8333
+
+if (base == 1 and axis == 1) :
+    v20 = centroids[0] * pi / 8333
+    v23 = centroids[3] * pi / 8333
+
+I_init = Position_LH.Pos( (h10+h13) / 2, (v10+v13) / 2, (h20+h23) / 2, (v20+v23) / 2)
+
+positionX, positionY, positionZ = I_init
 
 def position(accel):
     
@@ -51,21 +68,28 @@ def position(accel):
     positionY[1] = positionY[0] + velocityY[0] * T
     positionZ[1] = positionZ[0] + velocityZ[0] * T
     
-    return [positionX[1]
+    return positionX[1]
     
-    accelerationx[0] = accelerationx[1]
-    velocityx[0] = velocityx[1]
+    # Update previous values
+    accelerationX[0] = accelerationX[1]
+    accelerationY[0] = accelerationY[1]
+    accelerationZ[0] = accelerationZ[1]
+    velocityX[0] = velocityX[1]
+    velocityY[0] = velocityY[1]
+    velocityZ[0] = velocityZ[1]
     positionX[0] = positionX[1]
+    positionY[0] = positionY[1]
+    positionZ[0] = positionZ[1]
 
 
-while 1 :
+#while 1 :
     #print(parse_data(port))
     #base, axis, centroids, accelerations = parse_data(port)
     
     #print(accelerations)
     
-    position(accelerations)
-    print(position(accelerations))    
+    #position(accelerations)
+    #print(position(accelerations))    
     
     """
     accelerationX[1] = + accelerations[1]
@@ -95,8 +119,8 @@ while 1 :
     positionZ[0] = positionZ[1]
     """
     
-    if time.clock() >= 5 :
-        break
+    #if time.clock() >= 5 :
+        #break
     
     #print("time = ",time.clock()," s" )
     #print(time.clock())

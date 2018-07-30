@@ -6,6 +6,8 @@ from sys import stdin
 import numpy as np
 from reception import *
 import time
+import Position_IMU
+import Position_LH
 
 port = serial_init()
 base, axis, centroids, accelerations = parse_data(port)
@@ -65,8 +67,7 @@ def linearKFDDD(uAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
 
     """
     
-    
-    # Calculus of uTrue
+
     """
     for (i=0; i<2; i++){
         //uTrue[i] = uEst[i] + (K[i][0]*(uLightH[0]-uEst[0]) + K[i][1]*(uLightH[1]-uEst[1]))   ;
@@ -92,84 +93,12 @@ def linearKFDDD(uAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
     #sUTrue = (I - K) * sUEst
     
 
-    print(uTrue)
-    print(sUTrue)
+    #print(uTrue)
+    #print(sUTrue)
     
     return [uTrue,sUTrue]
 
 
-#===========================================================
-#  LINEAR KALMAN FILTER 2D
-#===========================================================
-
-
-# INITIALISATION
-
-# For KF
-result = [[0, 0], [0.0001, 0.0001]]    # Matrix to return uTrue & sUTrue (respectively u vector calculated and his covariance)
-# uTrue is initialized to x = y = 0   &   sUTrue is initialized sX = sY = 1mm
-
-# For IMU
-accelerationX = np.zeros(2)
-accelerationY = np.zeros(2)
-accelerationZ = np.zeros(2)
-
-velocityX = np.zeros(2)
-velocityY = np.zeros(2)
-velocityZ = np.zeros(2)
-
-positionX = np.zeros(2)
-positionY = np.zeros(2)
-positionZ = np.zeros(2)
-
-"""
-while 1 :
-    # For IMU
-    
-    #print(parse_data(port))
-    base, axis, centroids, accelerations = parse_data(port)
-    
-    #print(accelerations)
-    
-    accelerationX[1] = + accelerations[1]
-    accelerationY[1] = - accelerations[0]
-    accelerationZ[1] = - accelerations[2] + 9.81
-
-    # First integration
-    velocityX[1] = velocityX[0] + accelerationX[0] * 1/120
-    velocityY[1] = velocityY[0] + accelerationY[0] * 1/120
-    velocityZ[1] = velocityZ[0] + accelerationZ[0] * 1/120
-    # Second integration
-    positionX[1] = positionX[0] + velocityX[0] * 1/120
-    positionY[1] = positionY[0] + velocityY[0] * 1/120
-    positionZ[1] = positionZ[0] + velocityZ[0] * 1/120
-    
-    print(positionX[1], "  ,  ", positionY[1], "  ,  ", positionZ[1])
-    
-    # Update previous values
-    accelerationX[0] = accelerationX[1]
-    accelerationY[0] = accelerationY[1]
-    accelerationZ[0] = accelerationZ[1]
-    velocityX[0] = velocityX[1]
-    velocityY[0] = velocityY[1]
-    velocityZ[0] = velocityZ[1]
-    positionX[0] = positionX[1]
-    positionY[0] = positionY[1]
-    positionZ[0] = positionZ[1]    
-    
-    uAccelero = [positionX[0], positionY[0], positionZ[0]]
-    ########################################################################
-    # For LH
-    uLightH = 
-    
-    #########################################################################
-    
-    # For KF
-    result = linearKFDD(uAccelero, sUAccelero, uLightH, sULightH, result[0], result[1]);
-    print(result)
- """   
-      
-# Measurement on KF Algorithm
 
 
 
