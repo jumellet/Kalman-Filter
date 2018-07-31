@@ -1,14 +1,12 @@
+
 from reception import *
 from math import *
 import numpy as np
 
 
 # INITIALSATION
+#base, axis, centroids, accelerations = parse_data(logic.port)
 
-#logic.pos = []
-# Initialize serial port and prepare data buffer
-port = serial_init()
-base, axis, centroids, accelerations = parse_data(port)
 
 #Measurement of postion and orientation of LightHouse basis
 d = 2.610 #Distance between the 2 Basis
@@ -28,12 +26,12 @@ RC_R =   [[cos(-0.698),-sin(-0.698), 0],
 
 #logic.R_RB = np.transpose(logic.RB_R)
 #logic.R_RC = np.transpose(logic.RC_R)
-
+"""
 h10, v10, h20, v20 = np.zeros(4)
 h11, v11, h21, v21 = np.zeros(4)
 h12, v12, h22, v22 = np.zeros(4)
 h13, v13, h23, v23 = np.zeros(4)
-
+"""
 
 def Pos(h1, v1, h2, v2):
     vecH1_loc = [sin(h1), cos(h1), 0]
@@ -52,13 +50,13 @@ def Pos(h1, v1, h2, v2):
     v_loc = np.array([v[0]/norm_v, v[1]/norm_v, v[2]/norm_v])
 
     #Rotations matrix of lighthouses
-    m1 = logic.RB_R
-    m2 = logic.RC_R
+    m1 = RB_R
+    m2 = RC_R
 
     # STEP: transform line from relative coordinates to global lighthouse coordinate system (defined by matrix) (multiply vector by matrix)
 
-    u = np.matmul(logic.RB_R, u_loc)
-    v = np.matmul(logic.RC_R, v_loc)
+    u = np.matmul(RB_R, u_loc)
+    v = np.matmul(RC_R, v_loc)
 
     # Transform position
 

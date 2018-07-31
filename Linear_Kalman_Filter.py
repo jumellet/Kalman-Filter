@@ -1,23 +1,11 @@
 from sympy import *
-from sympy import solve_poly_system
-from math import pi
-from math import *
-from sys import stdin
 import numpy as np
-from reception import *
-import time
-import Position_IMU
-import Position_LH
-
-port = serial_init()
-base, axis, centroids, accelerations = parse_data(port)
-
 
 def linearKFDDD(uAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
 
     uEst = np.zeros(3)		# u estimated (=u predicted)
     sUEst = np.zeros((3,3))	# and the matrix u of covariances associated
-    K = = np.zeros((3,3))	# Kalman Gain
+    K = np.zeros((3,3))	# Kalman Gain
     tempMat = np.zeros((3,3))	# Temporary matrix used to easly compute K
     sUTrue = = np.zeros((3,3))	# Matrix of covariances of sUTrueI (I stand for input)
     sULightH = np.zeros((3,3))  # matrix sULightH covariances
