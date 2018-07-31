@@ -1,5 +1,6 @@
 from sympy import *
 import numpy as np
+from math import*
 
 def linearKFDDD(uAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
 
@@ -7,7 +8,7 @@ def linearKFDDD(uAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
     sUEst = np.zeros((3,3))	# and the matrix u of covariances associated
     K = np.zeros((3,3))	# Kalman Gain
     tempMat = np.zeros((3,3))	# Temporary matrix used to easly compute K
-    sUTrue = = np.zeros((3,3))	# Matrix of covariances of sUTrueI (I stand for input)
+    sUTrue = np.zeros((3,3))	# Matrix of covariances of sUTrueI (I stand for input)
     sULightH = np.zeros((3,3))  # matrix sULightH covariances
     I = np.eye(3)	        # Identity matrix
 
@@ -28,14 +29,9 @@ def linearKFDDD(uAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
 
     # Construction of sUTrue an sULightH, the covariances matrix from sUTrueI
     for i in range(3):
-        for j in range(3):
-            #sULightH[i][j] = sqrt(sULightHI[i]) * sqrt(sULightHI[j]);
-            if i=j :
-                sUTrue[i][j] = sqrt(sUTrueI[i]) * sqrt(sUTrueI[j])
-                sULightH[i][j] = sqrt(sULightHI[i]) * sqrt(sULightHI[j])
-            else :
-                sUTrue[i][j] = 0
-                sULightH[i][j] = 0
+        sUTrue[i][i] = np.abs(sUTrueI[i])
+        sULightH[i][i] = np.abs(sULightHI[i])
+
 
     #UPDATE
 
@@ -63,7 +59,8 @@ def linearKFDDD(uAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
             //vvvv HERE uTrue doesn't realy follow KF Algorithm, but allow good results
             uTrue[i] = uEst[i] + K[i][i] * (uEst[i] - uLightH[i]);
     """
-    uTrue += K * (uLightH - uEst) 
+    for i in range(3):
+        uTrue[i] += (K[i][0]*(uLightH[0] - uEst[0]) + K[i][1]*(uLightH[1] - uEst[1]) + K[i][2]*(uLightH[2] - uEst[2]) )
     # vvvv HERE uTrue doesn't really follow KF Algorithm, but allow good results
     #uTrue[i] = uEst + K * (uEst - uLightH)
     
@@ -76,7 +73,7 @@ def linearKFDDD(uAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
                     sUTrue[i][j] = tempMat[i][0]*sUEst[0][j] + tempMat[i][1]*sUEst[1][j];
                     //cout << "sUTrue"<<i<<","<<j<<" = "<<sUTrue[i][j]<< endl;
     """
-    sUTrue = (I - K) * sUTrue
+    sUTrue = (I - K).dot(sUTrue)
     # vvvv HERE SUTrue doesn't really follow KF Algorithm, but allow good results
     #sUTrue = (I - K) * sUEst
     
