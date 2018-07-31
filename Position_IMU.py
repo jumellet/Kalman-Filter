@@ -52,10 +52,22 @@ if (Position_LH.base == 1 and Position_LH.axis == 1) :
 #positionX, positionY, positionZ = I_init
 
 def position(accel, prevVel, prevPos):
+    # Initilisation of arrays
+    accelerationX = np.zeros(2)
+    accelerationY = np.zeros(2)
+    accelerationZ = np.zeros(2)
     
-    accelerationX[1] = + accel[1]
-    accelerationY[1] = - accel[0]
-    accelerationZ[1] = - accel[2] + 9.81
+    velocityX = np.zeros(2)
+    velocityY = np.zeros(2)
+    velocityZ = np.zeros(2)
+    
+    positionX = np.zeros(2)
+    positionY = np.zeros(2)
+    positionZ = np.zeros(2)    
+    
+    accelerationX[0] = + accel[1]
+    accelerationY[0] = - accel[0]
+    accelerationZ[0] = - accel[2] + 9.81
     
     velocityX[0] = prevVel[0]
     velocityY[0] = prevVel[1]
@@ -65,6 +77,7 @@ def position(accel, prevVel, prevPos):
     positionY[0] = prevPos[1]
     positionZ[0] = prevPos[2]
     
+    # Here begin the function
     # First integration
     velocityX[1] = velocityX[0] + accelerationX[0] * T
     velocityY[1] = velocityY[0] + accelerationY[0] * T
@@ -75,18 +88,6 @@ def position(accel, prevVel, prevPos):
     positionZ[1] = positionZ[0] + velocityZ[0] * T
     
     return [[positionX[1],positionY[1],positionZ[1]], [velocityX[1], velocityY[1], velocityZ[1]], [accelerationX[1], accelerationY[1], accelerationZ[1]]]
-    """
-    # Update previous values
-    accelerationX[0] = accelerationX[1]
-    accelerationY[0] = accelerationY[1]
-    accelerationZ[0] = accelerationZ[1]
-    velocityX[0] = velocityX[1]
-    velocityY[0] = velocityY[1]
-    velocityZ[0] = velocityZ[1]
-    positionX[0] = positionX[1]
-    positionY[0] = positionY[1]
-    positionZ[0] = positionZ[1]
-    """
 
 #while 1 :
     #print(parse_data(port))
