@@ -8,8 +8,8 @@ def linearKFDDD(uAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
     sUEst = np.zeros((3,3))	# and the matrix u of covariances associated
     K = np.zeros((3,3))	# Kalman Gain
     tempMat = np.zeros((3,3))	# Temporary matrix used to easly compute K
-    sUTrue = np.zeros((3,3))	# Matrix of covariances of sUTrueI (I stand for input)
-    sULightH = np.zeros((3,3))  # matrix sULightH covariances
+    #sUTrue = np.zeros((3,3))	# Matrix of covariances of sUTrueI (I stand for input)
+    #sULightH = np.zeros((3,3)) # matrix sULightH covariances
     I = np.eye(3)	        # Identity matrix
 
 
@@ -23,15 +23,25 @@ def linearKFDDD(uAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
                 sUEst[i][j]=sqrt(sUAccelero[i]) * sqrt(sUAccelero[j])
             else :
                 sUEst[i][j]=0
-    """            
+    """
     uEst = uAccelero
-    sUEst = sUAccelero
+    sUEst = [[np.abs(sUAccelero[0]),0                    ,0                    ],          # Matrix of covariances of sUTrueI (I stand for input)
+             [0                    ,np.abs(sUAccelero[1]),0                    ],
+             [0                    ,0                    ,np.abs(sUAccelero[2])]]
 
     # Construction of sUTrue an sULightH, the covariances matrix from sUTrueI
+    '''
     for i in range(3):
         sUTrue[i][i] = np.abs(sUTrueI[i])
         sULightH[i][i] = np.abs(sULightHI[i])
+    '''
+    sUTrue = [[np.abs(sUTrueI[0]),0                 ,0                 ],          # Matrix of covariances of sUTrueI (I stand for input)
+              [0                 ,np.abs(sUTrueI[1]),0                 ],
+              [0                 ,0                 ,np.abs(sUTrueI[2])]]
 
+    sULightH = [[np.abs(sULightHI[0]),0                   ,0                   ],  # Matrix sULightH covariances
+                [0                   ,np.abs(sULightHI[1]),0                   ],
+                [0                   ,0                   ,np.abs(sULightHI[2])]]
 
     #UPDATE
 
@@ -39,18 +49,10 @@ def linearKFDDD(uAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
     #coefK = 1 / ((sUEst[0][0]+sULightH[0][0])*(sUEst[1][1]+sULightH[1][1]) - (sUEst[0][1]+sULightH[0][1])*(sUEst[1][0]+sULightH[1][0]));
 
     # Calculus of Kalman gain K
-    
-    K = sUEst * np.linalg.inv(sUEst + sULightH)
-    
-    """
     for i in range(3):
         for j in range(3):
-            #Multiply it by sUEst and uTrue.transpose
-
-            K[i][j] = coefK * (sUEst[i][0]*tempMat[0][j] + sUEst[i][1]*tempMat[1][j]);
-
-    """
-    
+            K[i][j] = sUEst[i][j] + sULightH[i][j]
+    K = sUEst * np.linalg.inv(K)
 
     """
     for (i=0; i<2; i++){
@@ -63,7 +65,7 @@ def linearKFDDD(uAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
         uTrue[i] += (K[i][0]*(uLightH[0] - uEst[0]) + K[i][1]*(uLightH[1] - uEst[1]) + K[i][2]*(uLightH[2] - uEst[2]) )
     # vvvv HERE uTrue doesn't really follow KF Algorithm, but allow good results
     #uTrue[i] = uEst + K * (uEst - uLightH)
-    
+
     # Calculus of sUTrue
     """
     for i in range(2):
@@ -73,17 +75,15 @@ def linearKFDDD(uAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
                     sUTrue[i][j] = tempMat[i][0]*sUEst[0][j] + tempMat[i][1]*sUEst[1][j];
                     //cout << "sUTrue"<<i<<","<<j<<" = "<<sUTrue[i][j]<< endl;
     """
-    sUTrue = (I - K).dot(sUTrue)
+    for i in rang(3):
+        for j in range(3):
+            tempMat[i][j] = I[i][j] - K[i][j]
+    sUTrue = np.dot(tempMat, SUTrue)
     # vvvv HERE SUTrue doesn't really follow KF Algorithm, but allow good results
     #sUTrue = (I - K) * sUEst
-    
+
 
     #print(uTrue)
     #print(sUTrue)
-    
-    return [uTrue,sUTrue]
 
-
-
-
-
+    return [uTrue, sUTrue]

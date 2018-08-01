@@ -67,7 +67,7 @@ def position(accel, prevVel, prevPos):
     
     accelerationX[0] = + accel[1]
     accelerationY[0] = - accel[0]
-    accelerationZ[0] = - accel[2] + 9.81
+    accelerationZ[0] = - accel[2] #+ 9.81
     
     velocityX[0] = prevVel[0]
     velocityY[0] = prevVel[1]

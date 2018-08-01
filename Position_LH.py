@@ -1,5 +1,4 @@
-
-from reception import *
+#from reception import *
 from math import *
 import numpy as np
 
@@ -18,7 +17,7 @@ p2 = [0, -d/2, 2]
 RB_R =   [[cos(0.576), -sin(0.576) , 0],
           [sin(0.576), cos(0.576)  , 0],
           [0          , 0          , 1]]
-       
+
 
 RC_R =   [[cos(-0.698),-sin(-0.698), 0],
           [sin(-0.698),cos(-0.698) , 0],
@@ -72,7 +71,7 @@ def Pos(h1, v1, h2, v2):
     b = np.dot(u, v)
     c = np.dot(v, v)
 
-    d = np.dot(u, w0) 
+    d = np.dot(u, w0)
     e = np.dot(v, w0)
 
     #Resolution of the linear system
@@ -85,20 +84,20 @@ def Pos(h1, v1, h2, v2):
     if denom >= 1e-6:
         s = (e * b - c * d) / denom
         t = (a * e - b * d) / denom
-        
+
         pS0 = p0[0] + s*u[0]
         pS1 = p0[1] + s*u[1]
         pS2 = p0[2] + s*u[2]
-        
+
         qT0 = q0[0] + t*v[0]
         qT1 = q0[1] + t*v[1]
         qT2 = q0[2] + t*v[2]
-        
+
         I0 = (pS0 + qT0) / 2
         I1 = (pS1 + qT1) / 2
         I2 = (pS2 + qT2) / 2
         I = [I0, I1, I2]
-        
+
         # STEP: Convert output into standard coordinates
         """
         transforMatrix = [[ 0,  1, 0],
@@ -107,6 +106,5 @@ def Pos(h1, v1, h2, v2):
 
         I = np.matmul(transforMatrix,I)
         """
-        
-        return I
 
+        return I
