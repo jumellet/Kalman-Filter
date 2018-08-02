@@ -13,7 +13,13 @@ import numpy as np
 #########################################################
 # INITIALSATION
 #base, axis, centroids, accelerations = parse_data(logic.port)
-
+"""
+wasReceptionInit = False
+if not wasReceptionInit :
+    # Initialize serial port and prepare data buffer
+    logic.port = serial_init()
+    wasReceptionInit = True
+"""
 #Measurement of postion and orientation of LightHouse basis
 d = 2.610 #Distance between the 2 Basis
 
@@ -39,7 +45,7 @@ h12, v12, h22, v22 = np.zeros(4)
 h13, v13, h23, v23 = np.zeros(4)
 """
 
-def Pos(h1, v1, h2, v2):
+def diode_pos(h1, v1, h2, v2):
     vecH1_loc = [sin(h1), cos(h1), 0]
     vecV1_loc = [sin(v1), 0, cos(v1)]
 
@@ -105,16 +111,8 @@ def Pos(h1, v1, h2, v2):
         I2 = (pS2 + qT2) / 2
         I = [I0, I1, I2]
 
-        # STEP: Convert output into standard coordinates
-        """
-        transforMatrix = [[ 0,  1, 0],
-                         [ 0,  0, 1],
-                         [ -1, 0, 0]]
-
-        I = np.matmul(transforMatrix,I)
-        """
-
         return I
+
 
 
 
@@ -239,3 +237,7 @@ def position(accel, prevVel, prevPos):
 
     #print("time = ",time.clock()," s" )
     #print(time.clock())
+
+#########################################################
+# MAIN
+#########################################################
