@@ -23,7 +23,6 @@ def linearKFDDD(uAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
     # Also there is the construction of covariances matrix of sUEst
     """
     for i in range(3):
-        uEst[i] = uAccelero[i]
         for j in range(3):
             if i=j :
                 sUEst[i][j]=sqrt(sUAccelero[i]) * sqrt(sUAccelero[j])
@@ -59,14 +58,8 @@ def linearKFDDD(uAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
         for j in range(3):
             K[i][j] = sUEst[i][j] + sULightH[i][j]
     K = sUEst * np.linalg.inv(K)
-    print(K)
-    """
-    for (i=0; i<2; i++){
-        //uTrue[i] = uEst[i] + (K[i][0]*(uLightH[0]-uEst[0]) + K[i][1]*(uLightH[1]-uEst[1]))   ;
-            //uTrue[i] += K[i][i] * (uLightH[i] - uEst[i]);
-            //vvvv HERE uTrue doesn't realy follow KF Algorithm, but allow good results
-            uTrue[i] = uEst[i] + K[i][i] * (uEst[i] - uLightH[i]);
-    """
+    #print(K)
+
     """
     for i in range(3):
         uTrue[i] += (K[i][0]*(uLightH[0] - uEst[0]) + K[i][1]*(uLightH[1] - uEst[1]) + K[i][2]*(uLightH[2] - uEst[2]) )
@@ -76,14 +69,7 @@ def linearKFDDD(uAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
     for i in range(3):
         uTrue[i] = uEst[i] + (K[i][0]*(uLightH[0] - uEst[0]) + K[i][1]*(uLightH[1] - uEst[1]) + K[i][2]*(uLightH[2] - uEst[2]) )
     # Calculus of sUTrue
-    """
-    for i in range(2):
-        for (j=0; j<2; j++){
-                //sUTrue[i][j] = sUEst[i][j] - (K[i][0]*sUEst[0][j] + K[i][1]*sUEst[1][j]) ;
-                    tempMat[i][j] = (I[i][j]-K[i][j]);
-                    sUTrue[i][j] = tempMat[i][0]*sUEst[0][j] + tempMat[i][1]*sUEst[1][j];
-                    //cout << "sUTrue"<<i<<","<<j<<" = "<<sUTrue[i][j]<< endl;
-    """
+
     #print(I)
     #print(K)
     for i in range(3):
