@@ -2,12 +2,15 @@
 
 Here will be presented Sensor fusion for the HiveTracker. It makes fusion between Lighthouse positioning and the IMU.
 
+Nota : Here is the meaning of my abreviation. LH = Lighthouse ; KF = Kalman filter ; HT = HiveTracker
+
 There is three kind of files :
   - The preprocessing of data from the HiveTracker : this transform accelerations from the IMU and Lighthouses data into two 3D points of the space.
   - The sensor fusion : This is actually Kalman Filter. It estimate the true position of the Tracker using IMU and Lighthouse positioning.
   - The representation on a 3D space : This the Blender file. It directly use position calculated after Sensor fusion.
   
   Libraries used on Python code are all on the Anaconda package : https://www.anaconda.com/download/. Functions used there will be sooner extracted and placed into preprocessing file.
+  Serial library can be found here : https://github.com/pyserial/pyserial/
   Find Blender on their website : https://www.blender.org/download/
   
   A simulation of Lighthouse positioning system is available on the Dev branch. Called LH_Simu.blend, you can open it and find a Python script inside. The simulation is a mini-game. Move the blue car with Z, Q, S, D key (it's from a french Azerty keyboard), and the scanning/calculated position will appear with a green dot.
