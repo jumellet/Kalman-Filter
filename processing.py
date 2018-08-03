@@ -235,9 +235,6 @@ def position(accel, prevVel, prevPos):
     #if time.clock() >= 5 :
         #break
 
-    #print("time = ",time.clock()," s" )
-    #print(time.clock())
-
 #########################################################
 # MAIN
 #########################################################
