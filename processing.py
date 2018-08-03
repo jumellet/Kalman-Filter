@@ -38,19 +38,13 @@ RC_R =   [[cos(-0.698),-sin(-0.698), 0],
 
 #logic.R_RB = np.transpose(logic.RB_R)
 #logic.R_RC = np.transpose(logic.RC_R)
-"""
-h10, v10, h20, v20 = np.zeros(4)
-h11, v11, h21, v21 = np.zeros(4)
-h12, v12, h22, v22 = np.zeros(4)
-h13, v13, h23, v23 = np.zeros(4)
-"""
 
-def diode_pos(h1, v1, h2, v2):
-    vecH1_loc = [sin(h1), cos(h1), 0]
-    vecV1_loc = [sin(v1), 0, cos(v1)]
+def diode_pos(angle_scan):
+    vecH1_loc = [sin(angle_scan[0]), cos(angle_scan[0]), 0]
+    vecV1_loc = [sin(angle_scan[1]), 0, cos(angle_scan[1])]
 
-    vecH2_loc = [sin(h2), cos(h2), 0]
-    vecV2_loc = [sin(v2), 0, cos(v2)]
+    vecH2_loc = [sin(angle_scan[2]), cos(angle_scan[2]), 0]
+    vecV2_loc = [sin(angle_scan[3]), 0, cos(angle_scan[3])]
 
     u = [vecH1_loc[0]+vecV1_loc[0], vecH1_loc[1]+vecV1_loc[1], vecH1_loc[2]+vecV1_loc[2]]
     v = [vecH2_loc[0]+vecV2_loc[0], vecH2_loc[1]+vecV2_loc[1], vecH2_loc[2]+vecV2_loc[2]]
@@ -138,25 +132,6 @@ positionY = np.zeros(2)
 positionZ = np.zeros(2)
 """
 
-
-
-"""
-if (Position_LH.base == 0 and Position_LH.axis == 0) :
-    h10 = Position_LH.centroids[0] * pi / 8333
-    h13 = Position_LH.centroids[3] * pi / 8333
-
-if (Position_LH.base == 0 and Position_LH.axis == 1) :
-    v10 = Position_LH.centroids[0] * pi / 8333
-    v13 = Position_LH.centroids[3] * pi / 8333
-
-if (Position_LH.base == 1 and Position_LH.axis == 0) :
-    h20 = Position_LH.centroids[0] * pi / 8333
-    h23 = Position_LH.centroids[3] * pi / 8333
-
-if (Position_LH.base == 1 and Position_LH.axis == 1) :
-    v20 = Position_LH.centroids[0] * pi / 8333
-    v23 = Position_LH.centroids[3] * pi / 8333
-"""
 
 #I_init = Position_LH.Pos( (h10+h13) / 2, (v10+v13) / 2, (h20+h23) / 2, (v20+v23) / 2)
 #positionX, positionY, positionZ = I_init
