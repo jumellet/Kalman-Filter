@@ -3,23 +3,16 @@
 # sensor readings in a known configuration.
 
 #from math import *
-#import serial
+import serial
 from math import *
 import numpy as np
-#from reception import *
+from reception import *
 
 #########################################################
 # PROCESSING LightHouse
 #########################################################
 # INITIALSATION
-#base, axis, centroids, accelerations = parse_data(logic.port)
-"""
-wasReceptionInit = False
-if not wasReceptionInit :
-    # Initialize serial port and prepare data buffer
-    logic.port = serial_init()
-    wasReceptionInit = True
-"""
+#port = serial_init()
 #Measurement of postion and orientation of LightHouse basis
 d = 2.610 #Distance between the 2 Basis
 
@@ -87,11 +80,20 @@ def diode_pos(angle_scan):
     #lambda_mu = np.linalg.solve(k, l)
 
     denom = a*c - b*b
+    pS = np.zeros(3)
+    qT = np.zeros(3)
+    I = np.zeros(3)
 
     if denom >= 1e-6:
         s = (e * b - c * d) / denom
         t = (a * e - b * d) / denom
 
+        for i in range(3):
+            pS[i] = p0[i] + s*u[i]
+            qT[i] = q0[i] + t*v[i]
+            I[i] = (pS[i] + qT[i]) / 2
+
+        """
         pS0 = p0[0] + s*u[0]
         pS1 = p0[1] + s*u[1]
         pS2 = p0[2] + s*u[2]
@@ -104,40 +106,17 @@ def diode_pos(angle_scan):
         I1 = (pS1 + qT1) / 2
         I2 = (pS2 + qT2) / 2
         I = [I0, I1, I2]
-
+        """
         return I
-
-
-
 
 ##########################################################
 # PROCESSING IMU
 ##########################################################
-# Period of measurement
+# Period of measurement of the IMU
 T = 1/120.
 
-# Initialization of IMU
-"""
-accelerationX = np.zeros(2)
-accelerationY = np.zeros(2)
-accelerationZ = np.zeros(2)
-
-velocityX = np.zeros(2)
-velocityY = np.zeros(2)
-velocityZ = np.zeros(2)
-
-
-positionX = np.zeros(2)
-positionY = np.zeros(2)
-positionZ = np.zeros(2)
-"""
-
-
-#I_init = Position_LH.Pos( (h10+h13) / 2, (v10+v13) / 2, (h20+h23) / 2, (v20+v23) / 2)
-#positionX, positionY, positionZ = I_init
-
-def position(accel, prevVel, prevPos):
-    # Initilisation of arrays : Two vectors old "0" and new "1" values
+def IMU_pos(accel, prevVel, prevPos):
+    # Initilisation of arrays. Two vectors the old "0" and  the new "1" values
     acceleration = np.zeros((2,3))
 
     velocityX = np.zeros(2)
@@ -148,7 +127,7 @@ def position(accel, prevVel, prevPos):
     positionY = np.zeros(2)
     positionZ = np.zeros(2)
 
-    acceleration[0] = [ accel[0], accel[1], accel[2]]
+    acceleration[0] = [accel[0], accel[1], accel[2]]
 
     velocityX[0] = prevVel[0]
     velocityY[0] = prevVel[1]
@@ -170,46 +149,79 @@ def position(accel, prevVel, prevPos):
 
     return [[positionX[1],positionY[1],positionZ[1]], [velocityX[1], velocityY[1], velocityZ[1]]]
 
-#while 1 :
-    #print(parse_data(port))
-    #base, axis, centroids, accelerations = parse_data(port)
-
-    #print(accelerations)
-
-    #position(accelerations)
-    #print(position(accelerations))
-
-    """
-    accelerationX[1] = + accelerations[1]
-    accelerationY[1] = - accelerations[0]
-    accelerationZ[1] = - accelerations[2] + 9.81
-
-    # First integration
-    velocityX[1] = velocityX[0] + accelerationX[0] * 1/120
-    velocityY[1] = velocityY[0] + accelerationY[0] * 1/120
-    velocityZ[1] = velocityZ[0] + accelerationZ[0] * 1/120
-    # Second integration
-    positionX[1] = positionX[0] + velocityX[0] * 1/120
-    positionY[1] = positionY[0] + velocityY[0] * 1/120
-    positionZ[1] = positionZ[0] + velocityZ[0] * 1/120
-
-    print(positionX[1], "  ,  ", positionY[1], "  ,  ", positionZ[1])
-
-    # Update previous values
-    accelerationX[0] = accelerationX[1]
-    accelerationY[0] = accelerationY[1]
-    accelerationZ[0] = accelerationZ[1]
-    velocityX[0] = velocityX[1]
-    velocityY[0] = velocityY[1]
-    velocityZ[0] = velocityZ[1]
-    positionX[0] = positionX[1]
-    positionY[0] = positionY[1]
-    positionZ[0] = positionZ[1]
-    """
-
-    #if time.clock() >= 5 :
-        #break
-
 #########################################################
 # MAIN
 #########################################################
+def init_position():
+    # Initialize serial port and prepare data buffer
+    return Reception()
+
+# Initialize Angle calculated from timings of LH
+scanAngle = [[0, 0, 0, 0],
+             [0, 0, 0, 0],
+             [0, 0, 0, 0],
+             [0, 0, 0, 0]]
+# Initailize positions of diodes 0, 1, 2  and 3
+I_diode = [[0, 0, 0],
+           [0, 0, 0],
+           [0, 0, 0],
+           [0, 0, 0]]
+
+
+time = 4
+I_Accelero = [0, 0, 0]
+# Previous velocity
+velocity = [0,0,0]
+wasIMUInit = False
+
+def get_position(rx):
+    global time, wasIMUInit, velocity, I_Accelero
+
+    if not wasIMUInit :
+        velocity = [0, 0, 0]
+        wasIMUInit = True
+
+    # Refresh data
+    # base = 0 or 1 (B or C)
+    # axis = 0 or 1 (horizontal or vertical)
+    # centroids = array of 4 floats in microseconds
+    # accelerations = array of 3 floats in G (AKA m/s^2)
+    base, axis, centroids, accelerations = rx.parse_data()
+
+    # Periode of one scan in micro seconds
+    T_scan = 8333
+    time += 1
+
+    # Convert time of scanning into angle in radians
+    for i in range(4):
+           scanAngle[i][base*2 + axis] = centroids[i] * pi / T_scan
+
+    # For Lighthouses
+    for i in range(4):
+        I_diode[i] = diode_pos(scanAngle[i])
+
+    I_LH = [(I_diode[0][0] + I_diode[3][0]) / 2, (I_diode[0][1] +  I_diode[3][1]) / 2, (I_diode[0][2] +  I_diode[3][2]) / 2]
+    averagePos = I_LH
+
+    # For IMU
+
+    #Low pass filter
+    """
+    logic.prevPos[0] = (1 - factor) * logic.prevPos[0] + factor * I_LH[0]
+    logic.prevPos[1] = (1 - factor) * logic.prevPos[1] + factor * I_LH[1]
+    logic.prevPos[2] = (1 - factor) * logic.prevPos[2] + factor * I_LH[2]
+    """
+
+    # Update data of the accelerometer
+    I_Accelero, velocity = IMU_pos(accelerations, velocity, I_Accelero)
+
+    # Reset position of IMU at (1/120 * 4)ms
+    if time >= 4 :
+        off_set = averagePos
+        I_Accelero = [0, 0, 0]
+        time = 0
+        for i in range(3):
+            I_Accelero[i] = off_set[i]
+            velocity[i] = 0
+
+    return I_diode, I_Accelero
