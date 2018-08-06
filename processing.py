@@ -182,6 +182,7 @@ def get_position(rx):
     # Periode of one scan in micro seconds
     T_scan = 8333
     time += 1
+    # Factor of smoothness for low pass filter
     factor = 0.2
 
     # Convert time of scanning into angle in radians

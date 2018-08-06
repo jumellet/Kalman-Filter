@@ -3,7 +3,7 @@ import numpy as np
 from math import*
 import processing
 
-def linearKFDDD(uvaAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
+def linear_kalman(uvaAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
 
     uEst = np.zeros(3)		# u estimated (=u predicted)
     sUEst = np.zeros((3,3))	# and the matrix u of covariances associated
