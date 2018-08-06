@@ -115,7 +115,7 @@ def diode_pos(angle_scan):
 # Period of measurement of the IMU
 T = 1/120.
 
-def IMU_pos(accel, prevVel, prevPos):
+def IMU_pos(prevPos, prevVel, accel):
     # Initilisation of arrays. Two vectors the old "0" and  the new "1" values
     acceleration = np.zeros((2,3))
     velocity = np.zeros((2,3))
@@ -135,7 +135,7 @@ def IMU_pos(accel, prevVel, prevPos):
     for i in range(3):
         position[1][i] = position[0][i] + velocity[0][i] * T
 
-    return [position[1], velocity[1]]
+    return [position[1], velocity[1], acceleration[0]]
 
 #########################################################
 # MAIN
@@ -212,7 +212,7 @@ def get_position(rx):
             velocity[i] = 0
 
     # Update data of the accelerometer
-    I_Accelero, velocity = IMU_pos(accelerations, velocity, I_Accelero)
+    I_Accelero, velocity, accel = IMU_pos(I_Accelero, velocity, accelerations)
 
     #Low pass filter on optical data
     '''
@@ -220,7 +220,7 @@ def get_position(rx):
         for i in range(3):
             I_diode[j][i] = (1 - factor) * I_diode[j][i] + factor * prev_I_diode[j][i]
     '''
-    return I_diode, I_Accelero
+    return I_diode, [I_Accelero, velocity, accel]
 
     for j in range(4):
         for i in range(3):
