@@ -118,36 +118,24 @@ T = 1/120.
 def IMU_pos(accel, prevVel, prevPos):
     # Initilisation of arrays. Two vectors the old "0" and  the new "1" values
     acceleration = np.zeros((2,3))
-
-    velocityX = np.zeros(2)
-    velocityY = np.zeros(2)
-    velocityZ = np.zeros(2)
-
-    positionX = np.zeros(2)
-    positionY = np.zeros(2)
-    positionZ = np.zeros(2)
+    velocity = np.zeros((2,3))
+    position = np.zeros((2,3))
 
     acceleration[0] = [accel[0], accel[1], accel[2]]
 
-    velocityX[0] = prevVel[0]
-    velocityY[0] = prevVel[1]
-    velocityZ[0] = prevVel[2]
-
-    positionX[0] = prevPos[0]
-    positionY[0] = prevPos[1]
-    positionZ[0] = prevPos[2]
+    for i in range(3):
+        velocity[0][i] = prevVel[i]
+        position[0][i] = prevPos[i]
 
     # Here begin the function
     # First integration
-    velocityX[1] = velocityX[0] + acceleration[0][0] * T
-    velocityY[1] = velocityY[0] + acceleration[0][1] * T
-    velocityZ[1] = velocityZ[0] + acceleration[0][2] * T
+    for i in range(3):
+        velocity[1][i] = velocity[0][i] + acceleration[0][i] * T
     # Second integration
-    positionX[1] = positionX[0] + velocityX[0] * T
-    positionY[1] = positionY[0] + velocityY[0] * T
-    positionZ[1] = positionZ[0] + velocityZ[0] * T
+    for i in range(3):
+        position[1][i] = position[0][i] + velocity[0][i] * T
 
-    return [[positionX[1],positionY[1],positionZ[1]], [velocityX[1], velocityY[1], velocityZ[1]]]
+    return [position[1], velocity[1]]
 
 #########################################################
 # MAIN
