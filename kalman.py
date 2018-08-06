@@ -14,7 +14,7 @@ def linearKFDDD(uvaAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
     I = np.eye(3)	        # Identity matrix
     dt = 1/120                   # Time period
 
-    # PREDICTION (which normally follows a mathematical law, but here the prediction is given by IMU)
+    # PREDICTION
     # Also there is the construction of covariances matrix of sUEst
 
     uAccelero = uvaAccelero[0]

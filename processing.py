@@ -182,7 +182,6 @@ def get_position(rx):
     # Periode of one scan in micro seconds
     T_scan = 8333
     time += 1
-    factor = 0.8
 
     # Convert time of scanning into angle in radians
     for i in range(4):
@@ -199,11 +198,6 @@ def get_position(rx):
 
     # Reset position of IMU at (1/120 * 4)ms
     if time >= 4 :
-        #Low pass filter on optical data for initialisation of IMU
-        """
-        for i in range(3):
-            averagePos[0] = (1 - factor) * averagePos[0] + factor * I_LH[0]
-        """
         off_set = averagePos
         I_Accelero = [0, 0, 0]
         time = 0
@@ -215,13 +209,11 @@ def get_position(rx):
     I_Accelero, velocity, accel = IMU_pos(I_Accelero, velocity, accelerations)
 
     #Low pass filter on optical data
-    '''
+    factor = 0.2
     for j in range(4):
         for i in range(3):
-            I_diode[j][i] = (1 - factor) * I_diode[j][i] + factor * prev_I_diode[j][i]
-    '''
-    return I_diode, [I_Accelero, velocity, accel]
 
-    for j in range(4):
-        for i in range(3):
+            I_diode[j][i] = (1 - factor) * prev_I_diode[j][i] + factor * I_diode[j][i]
             prev_I_diode[j][i] = I_diode[j][i]
+
+    return I_diode, [I_Accelero, velocity, accel]
