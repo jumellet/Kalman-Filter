@@ -1,7 +1,6 @@
 from sympy import *
 import numpy as np
 from math import*
-import processing
 
 def linear_kalman(uvaAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
 
@@ -12,7 +11,7 @@ def linear_kalman(uvaAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
     #sUTrue = np.zeros((3,3))	# Matrix of covariances of sUTrueI (I stand for input)
     #sULightH = np.zeros((3,3)) # matrix sULightH covariances
     I = np.eye(3)	        # Identity matrix
-    dt = 1/120                   # Time period
+    dt = 1/120              # Time period
 
     # PREDICTION
     # Also there is the construction of covariances matrix of sUEst

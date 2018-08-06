@@ -204,7 +204,7 @@ def get_position(rx):
 
     # For IMU
 
-    # Reset position of IMU at (1/120 * 4)ms
+    # Reset position of IMU at (1/120 * 4)s 
     if time >= 4 :
         off_set = averagePos
         I_Accelero = [0, 0, 0]
