@@ -154,7 +154,10 @@ I_diode = [[0, 0, 0],
            [0, 0, 0],
            [0, 0, 0],
            [0, 0, 0]]
-
+prev_I_diode = [[0, 0, 0],
+           [0, 0, 0],
+           [0, 0, 0],
+           [0, 0, 0]]
 
 time = 4
 I_Accelero = [0, 0, 0]
@@ -163,7 +166,7 @@ velocity = [0,0,0]
 wasIMUInit = False
 
 def get_position(rx):
-    global time, wasIMUInit, velocity, I_Accelero
+    global time, wasIMUInit, velocity, I_Accelero, prev_I_diode
 
     if not wasIMUInit :
         velocity = [0, 0, 0]
@@ -179,6 +182,7 @@ def get_position(rx):
     # Periode of one scan in micro seconds
     T_scan = 8333
     time += 1
+    factor = 0.8
 
     # Convert time of scanning into angle in radians
     for i in range(4):
@@ -193,18 +197,13 @@ def get_position(rx):
 
     # For IMU
 
-    #Low pass filter
-    """
-    logic.prevPos[0] = (1 - factor) * logic.prevPos[0] + factor * I_LH[0]
-    logic.prevPos[1] = (1 - factor) * logic.prevPos[1] + factor * I_LH[1]
-    logic.prevPos[2] = (1 - factor) * logic.prevPos[2] + factor * I_LH[2]
-    """
-
-    # Update data of the accelerometer
-    I_Accelero, velocity = IMU_pos(accelerations, velocity, I_Accelero)
-
     # Reset position of IMU at (1/120 * 4)ms
     if time >= 4 :
+        #Low pass filter on optical data for initialisation of IMU
+        """
+        for i in range(3):
+            averagePos[0] = (1 - factor) * averagePos[0] + factor * I_LH[0]
+        """
         off_set = averagePos
         I_Accelero = [0, 0, 0]
         time = 0
@@ -212,4 +211,17 @@ def get_position(rx):
             I_Accelero[i] = off_set[i]
             velocity[i] = 0
 
+    # Update data of the accelerometer
+    I_Accelero, velocity = IMU_pos(accelerations, velocity, I_Accelero)
+
+    #Low pass filter on optical data
+    '''
+    for j in range(4):
+        for i in range(3):
+            I_diode[j][i] = (1 - factor) * I_diode[j][i] + factor * prev_I_diode[j][i]
+    '''
     return I_diode, I_Accelero
+
+    for j in range(4):
+        for i in range(3):
+            prev_I_diode[j][i] = I_diode[j][i]
