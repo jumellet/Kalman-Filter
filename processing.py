@@ -182,6 +182,7 @@ def get_position(rx):
     # Periode of one scan in micro seconds
     T_scan = 8333
     time += 1
+    factor = 0.2
 
     # Convert time of scanning into angle in radians
     for i in range(4):
@@ -190,6 +191,12 @@ def get_position(rx):
     # For Lighthouses
     for i in range(4):
         I_diode[i] = diode_pos(scanAngle[i])
+
+    #Low pass filter on optical data
+    for j in range(4):
+        for i in range(3):
+            I_diode[j][i] = (1 - factor) * prev_I_diode[j][i] + factor * I_diode[j][i]
+            prev_I_diode[j][i] = I_diode[j][i]
 
     I_LH = [(I_diode[0][0] + I_diode[3][0]) / 2, (I_diode[0][1] +  I_diode[3][1]) / 2, (I_diode[0][2] +  I_diode[3][2]) / 2]
     averagePos = I_LH
@@ -207,13 +214,5 @@ def get_position(rx):
 
     # Update data of the accelerometer
     I_Accelero, velocity, accel = IMU_pos(I_Accelero, velocity, accelerations)
-
-    #Low pass filter on optical data
-    factor = 0.2
-    for j in range(4):
-        for i in range(3):
-
-            I_diode[j][i] = (1 - factor) * prev_I_diode[j][i] + factor * I_diode[j][i]
-            prev_I_diode[j][i] = I_diode[j][i]
 
     return I_diode, [I_Accelero, velocity, accel]
