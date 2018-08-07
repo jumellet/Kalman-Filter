@@ -141,7 +141,7 @@ I_diode = [[0, 0, 0],
            [0, 0, 0],
            [0, 0, 0]]
 
-raw_diode = np.zeros((3,4,4))
+raw_diode = np.zeros((4,4,3))
 # Circular buffer index
 cbi = 0
 
@@ -151,14 +151,14 @@ I_Accelero = [0, 0, 0]
 velocity = [0,0,0]
 # Standard deviation of IMU
 s_I_Accelero = [0, 0, 0]
-s_velocity = [0,0,0]
+s_velocity = [0, 0, 0]
 s_accelerations = [S_ACC, S_ACC, S_ACC]
 
 wasIMUInit = False
 
 def get_position(rx):
     global I_Accelero, velocity, s_I_Accelero, s_velocity, s_accelerations
-    global S_ACC, raw_diode, time, wasIMUInit
+    global S_ACC, raw_diode, time, wasIMUInit, cbi
 
     if not wasIMUInit :
         velocity = [0, 0, 0]
@@ -188,11 +188,11 @@ def get_position(rx):
     # Low pass filter using 4 last optical data
     for d in range(4):
         for xyz in range(3):
-            raw_diode[xyz][d][cbi] = I_diode[xyz][d]
+            raw_diode[cbi][d][xyz] = I_diode[d][xyz]
             average = 0
             for t in range(4):
-                average += raw_diode[xyz][d][t]
-            I_diode[xyz][d] = average / 4
+                average += raw_diode[t][d][xyz]
+            I_diode[d][xyz] = average / 4
 
     # Circular buffer index
     cbi = (cbi+1) % 4
@@ -214,11 +214,12 @@ def get_position(rx):
             I_Accelero[i] = off_set[i]
             velocity[i] = 0
             s_I_Accelero[i] = 0
-            s_velocity = 0
+            s_velocity[i] = 0
             s_accelerations[i] = S_ACC
 
     # Update data of the accelerometer
     I_Accelero, velocity, accel = IMU_pos(I_Accelero, velocity, accelerations)
+    # Update standard deviation of accelerometer
     s_I_Accelero, s_velocity, s_accelerations = IMU_pos(s_I_Accelero, s_velocity, s_accelerations)
 
     return I_diode, [I_Accelero, velocity, accel], [s_I_Accelero, s_velocity, s_accelerations]
