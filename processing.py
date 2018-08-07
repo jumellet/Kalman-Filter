@@ -93,20 +93,6 @@ def diode_pos(angle_scan):
             qT[i] = q0[i] + t*v[i]
             I[i] = (pS[i] + qT[i]) / 2
 
-        """
-        pS0 = p0[0] + s*u[0]
-        pS1 = p0[1] + s*u[1]
-        pS2 = p0[2] + s*u[2]
-
-        qT0 = q0[0] + t*v[0]
-        qT1 = q0[1] + t*v[1]
-        qT2 = q0[2] + t*v[2]
-
-        I0 = (pS0 + qT0) / 2
-        I1 = (pS1 + qT1) / 2
-        I2 = (pS2 + qT2) / 2
-        I = [I0, I1, I2]
-        """
         return I
 
 ##########################################################
@@ -114,14 +100,14 @@ def diode_pos(angle_scan):
 ##########################################################
 # Period of measurement of the IMU
 T = 1/120.
+# Standard deviation of IMU (m/s^2)
+s_acc = 0.0423639918
 
-def IMU_pos(prevPos, prevVel, accel):
+def IMU_pos(prevPos, prevVel, accel):#, s_accel):
     # Initilisation of arrays. Two vectors the old "0" and  the new "1" values
-    acceleration = np.zeros((2,3))
     velocity = np.zeros((2,3))
     position = np.zeros((2,3))
-
-    acceleration[0] = [accel[0], accel[1], accel[2]]
+    #s_acceleration = np.zeros(3)
 
     for i in range(3):
         velocity[0][i] = prevVel[i]
@@ -130,12 +116,13 @@ def IMU_pos(prevPos, prevVel, accel):
     # Here begin the function
     # First integration
     for i in range(3):
-        velocity[1][i] = velocity[0][i] + acceleration[0][i] * T
+        velocity[1][i] = velocity[0][i] + accel[i] * T
+        #velocity[1][i] = velocity[0][i] + s_acceleration[i] * T
     # Second integration
     for i in range(3):
         position[1][i] = position[0][i] + velocity[0][i] * T
 
-    return [position[1], velocity[1], acceleration[0]]
+    return [position[1], velocity[1], accel]
 
 #########################################################
 # MAIN
@@ -166,7 +153,7 @@ velocity = [0,0,0]
 wasIMUInit = False
 
 def get_position(rx):
-    global time, wasIMUInit, velocity, I_Accelero, prev_I_diode
+    global time, wasIMUInit, velocity, I_Accelero, prev_I_diode#, s_acc
 
     if not wasIMUInit :
         velocity = [0, 0, 0]
@@ -204,7 +191,8 @@ def get_position(rx):
 
     # For IMU
 
-    # Reset position of IMU at (1/120 * 4)s 
+    # Reset position of IMU at (1/120 * 4)s
+    # We consider variance on measurement, the same on 3 axis
     if time >= 4 :
         off_set = averagePos
         I_Accelero = [0, 0, 0]
@@ -212,6 +200,7 @@ def get_position(rx):
         for i in range(3):
             I_Accelero[i] = off_set[i]
             velocity[i] = 0
+            #s_Accelero[i] =
 
     # Update data of the accelerometer
     I_Accelero, velocity, accel = IMU_pos(I_Accelero, velocity, accelerations)

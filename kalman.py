@@ -4,14 +4,14 @@ from math import*
 
 def linear_kalman(uvaAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
 
-    uEst = np.zeros(3)		# u estimated (=u predicted)
-    sUEst = np.zeros((3,3))	# and the matrix u of covariances associated
-    K = np.zeros((3,3))	# Kalman Gain
+    uEst = np.zeros(3)		    # u estimated (=u predicted)
+    sUEst = np.zeros((3,3))	    # and the matrix u of covariances associated
+    K = np.zeros((3,3))	        # Kalman Gain
     tempMat = np.zeros((3,3))	# Temporary matrix used to easly compute K
     #sUTrue = np.zeros((3,3))	# Matrix of covariances of sUTrueI (I stand for input)
     #sULightH = np.zeros((3,3)) # matrix sULightH covariances
-    I = np.eye(3)	        # Identity matrix
-    dt = 1/120              # Time period
+    I = np.eye(3)	            # Identity matrix
+    dt = 1/120                  # Time period
 
     # PREDICTION
     # Also there is the construction of covariances matrix of sUEst
@@ -20,7 +20,8 @@ def linear_kalman(uvaAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
     vAccelero = uvaAccelero[1]
     aAccelero = uvaAccelero[2]
 
-    uEst = uAccelero + dt * vAccelero + 1/2 * aAccelero * dt**2
+    for i in range(3):
+        uEst[i] = uAccelero[i] + dt * vAccelero[i] + 1/2 * aAccelero[i] * dt**2
     # Matrix of covariances of sUTrueI (I stand for input)
     sUEst = [[np.abs(sUAccelero[0]),0                    ,0                    ],
              [0                    ,np.abs(sUAccelero[1]),0                    ],
