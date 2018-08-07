@@ -100,14 +100,13 @@ def diode_pos(angle_scan):
 ##########################################################
 # Period of measurement of the IMU
 T = 1/120.
-# Standard deviation of IMU (m/s^2)
-s_acc = 0.0423639918
+# Standard deviation of IMU (m/s^2) considered the same on 3 axis
+S_ACC = 0.0423639918
 
-def IMU_pos(prevPos, prevVel, accel):#, s_accel):
+def IMU_pos(prevPos, prevVel, accel):
     # Initilisation of arrays. Two vectors the old "0" and  the new "1" values
     velocity = np.zeros((2,3))
     position = np.zeros((2,3))
-    #s_acceleration = np.zeros(3)
 
     for i in range(3):
         velocity[0][i] = prevVel[i]
@@ -117,7 +116,7 @@ def IMU_pos(prevPos, prevVel, accel):#, s_accel):
     # First integration
     for i in range(3):
         velocity[1][i] = velocity[0][i] + accel[i] * T
-        #velocity[1][i] = velocity[0][i] + s_acceleration[i] * T
+
     # Second integration
     for i in range(3):
         position[1][i] = position[0][i] + velocity[0][i] * T
@@ -150,10 +149,16 @@ time = 4
 I_Accelero = [0, 0, 0]
 # Previous velocity
 velocity = [0,0,0]
+# Standard deviation of IMU
+s_I_Accelero = [0, 0, 0]
+s_velocity = [0,0,0]
+s_accelerations = [S_ACC, S_ACC, S_ACC]
+
 wasIMUInit = False
 
 def get_position(rx):
-    global time, wasIMUInit, velocity, I_Accelero, prev_I_diode#, s_acc
+    global I_Accelero, velocity, s_I_Accelero, s_velocity, s_accelerations
+    global S_ACC, prev_I_diode, time, wasIMUInit
 
     if not wasIMUInit :
         velocity = [0, 0, 0]
@@ -194,15 +199,19 @@ def get_position(rx):
     # Reset position of IMU at (1/120 * 4)s
     # We consider variance on measurement, the same on 3 axis
     if time >= 4 :
+        # off_set allows to calibrate position of the IMU
         off_set = averagePos
         I_Accelero = [0, 0, 0]
         time = 0
         for i in range(3):
             I_Accelero[i] = off_set[i]
             velocity[i] = 0
-            #s_Accelero[i] =
+            s_I_Accelero[i] = 0
+            s_velocity = 0
+            s_accelerations[i] = S_ACC
 
     # Update data of the accelerometer
     I_Accelero, velocity, accel = IMU_pos(I_Accelero, velocity, accelerations)
+    s_I_Accelero, s_velocity, s_accelerations = IMU_pos(s_I_Accelero, s_velocity, s_accelerations)
 
-    return I_diode, [I_Accelero, velocity, accel]
+    return I_diode, [I_Accelero, velocity, accel], [s_I_Accelero, s_velocity, s_accelerations]
