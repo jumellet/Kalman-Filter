@@ -140,10 +140,10 @@ I_diode = [[0, 0, 0],
            [0, 0, 0],
            [0, 0, 0],
            [0, 0, 0]]
-prev_I_diode = [[0, 0, 0],
-           [0, 0, 0],
-           [0, 0, 0],
-           [0, 0, 0]]
+
+raw_diode = np.zeros((3,4,4))
+# Circular buffer index
+cbi = 0
 
 time = 4
 I_Accelero = [0, 0, 0]
@@ -158,7 +158,7 @@ wasIMUInit = False
 
 def get_position(rx):
     global I_Accelero, velocity, s_I_Accelero, s_velocity, s_accelerations
-    global S_ACC, prev_I_diode, time, wasIMUInit
+    global S_ACC, raw_diode, time, wasIMUInit
 
     if not wasIMUInit :
         velocity = [0, 0, 0]
@@ -185,13 +185,20 @@ def get_position(rx):
     for i in range(4):
         I_diode[i] = diode_pos(scanAngle[i])
 
-    #Low pass filter on optical data
-    for j in range(4):
-        for i in range(3):
-            I_diode[j][i] = (1 - factor) * prev_I_diode[j][i] + factor * I_diode[j][i]
-            prev_I_diode[j][i] = I_diode[j][i]
+    # Low pass filter using 4 last optical data
+    for d in range(4):
+        for xyz in range(3):
+            raw_diode[xyz][d][cbi] = I_diode[xyz][d]
+            average = 0
+            for t in range(4):
+                average += raw_diode[xyz][d][t]
+            I_diode[xyz][d] = average / 4
+
+    # Circular buffer index
+    cbi = (cbi+1) % 4
 
     I_LH = [(I_diode[0][0] + I_diode[3][0]) / 2, (I_diode[0][1] +  I_diode[3][1]) / 2, (I_diode[0][2] +  I_diode[3][2]) / 2]
+    # Position where the IMU will be at calibration
     averagePos = I_LH
 
     # For IMU

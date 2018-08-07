@@ -8,8 +8,6 @@ def linear_kalman(uvaAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
     sUEst = np.zeros((3,3))	    # and the matrix u of covariances associated
     K = np.zeros((3,3))	        # Kalman Gain
     tempMat = np.zeros((3,3))	# Temporary matrix used to easly compute K
-    #sUTrue = np.zeros((3,3))	# Matrix of covariances of sUTrueI (I stand for input)
-    #sULightH = np.zeros((3,3)) # matrix sULightH covariances
     I = np.eye(3)	            # Identity matrix
     dt = 1/120                  # Time period
 
