@@ -20,7 +20,7 @@ def linear_kalman(uvaAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
 
     for i in range(3):
         uEst[i] = uAccelero[i] + dt * vAccelero[i] + 1/2 * aAccelero[i] * dt**2
-    # Matrix of covariances of sUTrueI (I stand for input)
+
     sUEst = [[np.abs(sUAccelero[0]),0                    ,0                    ],
              [0                    ,np.abs(sUAccelero[1]),0                    ],
              [0                    ,0                    ,np.abs(sUAccelero[2])]]
@@ -53,6 +53,19 @@ def linear_kalman(uvaAccelero, sUAccelero, uLightH, sULightHI, uTrue, sUTrueI):
             tempMat[i][j] = I[i][j] - K[i][j]
     sUTrue = tempMat.dot(sUTrue)
 
-
-
     return [uTrue, [sUTrue[0][0], sUTrue[1][1], sUTrue[2][2]]]
+
+# This function is a simple weighted fusion
+def madgwick(uvaAccelero, sUAccelero, uLightH, sULightH):
+
+    uAccelero = uvaAccelero[0]
+    denom = np.zeros(3)
+    gamma = np.zeros(3)
+    uEst = np.zeros(3)
+
+    for i in range(3):
+        denom[i] = np.abs(sUAccelero[i] + sULightH[i])
+        gamma[i] = sULightH[i] / denom[i]
+        uEst[i] = gamma[i] * uLightH[i] + (1 - gamma[i]) * uAccelero[i]
+
+    return uEst
