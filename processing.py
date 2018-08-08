@@ -8,6 +8,7 @@ from math import *
 import numpy as np
 from reception import *
 
+FILTER = 2
 #########################################################
 # PROCESSING LightHouse
 #########################################################
@@ -158,7 +159,7 @@ wasIMUInit = False
 
 def get_position(rx):
     global I_Accelero, velocity, s_I_Accelero, s_velocity, s_accelerations
-    global S_ACC, raw_diode, time, wasIMUInit, cbi
+    global FILTER, S_ACC, raw_diode, time, wasIMUInit, cbi, factor
 
     if not wasIMUInit :
         velocity = [0, 0, 0]
@@ -185,14 +186,23 @@ def get_position(rx):
     for i in range(4):
         I_diode[i] = diode_pos(scanAngle[i])
 
+    # Low pass filter
+    if FILTER == 1 :
+        for d in range(4):
+            for xyz in range(3):
+                I_diode[d][xyz] = (1 - factor) * raw_diode[0][d][xyz] + factor * I_diode[d][xyz]
+                raw_diode[0][d][xyz] = I_diode[d][xyz]
+
+
     # Low pass filter using 4 last optical data
-    for d in range(4):
-        for xyz in range(3):
-            raw_diode[cbi][d][xyz] = I_diode[d][xyz]
-            average = 0
-            for t in range(4):
-                average += raw_diode[t][d][xyz]
-            I_diode[d][xyz] = average / 4
+    elif FILTER == 2 :
+        for d in range(4):
+            for xyz in range(3):
+                raw_diode[cbi][d][xyz] = I_diode[d][xyz]
+                average = 0
+                for t in range(4):
+                    average += raw_diode[t][d][xyz]
+                I_diode[d][xyz] = average / 4
 
     # Circular buffer index
     cbi = (cbi+1) % 4
