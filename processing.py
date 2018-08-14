@@ -13,25 +13,20 @@ FILTER = 2
 # PROCESSING LightHouse
 #########################################################
 # INITIALSATION
-#port = serial_init()
-#Measurement of postion and orientation of LightHouse basis
-d = 2.610 #Distance between the 2 Basis
+# Positionning LH
 
-p1 = [0, d/2, 2]
-p2 = [0, -d/2, 2]
+p1 = [1.806653, 0.3741548, 2.461003]
+p2 = [1.815818, -2.143868, 2.483389]
 
-#Rotation Matrices LH1 and LH2 on world Basis
-RB_R =   [[cos(0.576), -sin(0.576) , 0],
-          [sin(0.576), cos(0.576)  , 0],
-          [0          , 0          , 1]]
+# Rotation Matrices LH1 and LH2 on world Basis
 
+RB_R = [[7.709163e-01, -6.368385e-01, -1.118407e-02],
+        [6.368753e-01,  7.709669e-01, -3.505305e-04],
+        [8.845782e-03, -6.852630e-03,  9.999374e-01]]
 
-RC_R =   [[cos(-0.698),-sin(-0.698), 0],
-          [sin(-0.698),cos(-0.698) , 0],
-          [0          ,0           , 1]]
-
-#logic.R_RB = np.transpose(logic.RB_R)
-#logic.R_RC = np.transpose(logic.RC_R)
+RC_R = [[ 0.9062433 ,  0.4225887 , -0.01191781],
+        [-0.4225747 ,  0.9063203 ,  0.00380109],
+        [ 0.01240765,  0.00159146,  0.9999218 ]]
 
 def diode_pos(angle_scan):
     vecH1_loc = [sin(angle_scan[0]), cos(angle_scan[0]), 0]
@@ -48,10 +43,6 @@ def diode_pos(angle_scan):
 
     u_loc = np.array([u[0]/norm_u, u[1]/norm_u, u[2]/norm_u])
     v_loc = np.array([v[0]/norm_v, v[1]/norm_v, v[2]/norm_v])
-
-    #Rotations matrix of lighthouses
-    m1 = RB_R
-    m2 = RC_R
 
     # STEP: transform line from relative coordinates to global lighthouse coordinate system (defined by matrix) (multiply vector by matrix)
 
@@ -75,7 +66,7 @@ def diode_pos(angle_scan):
     d = np.dot(u, w0)
     e = np.dot(v, w0)
 
-    #Resolution of the linear system
+    # Resolution of the linear system
     #k = np.array([[uu, -uv], [uv, -vv]])
     #l = np.array([ABu, ABv])
     #lambda_mu = np.linalg.solve(k, l)
