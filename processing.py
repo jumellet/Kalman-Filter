@@ -12,26 +12,113 @@ FILTER = 2
 #########################################################
 # PROCESSING LightHouse
 #########################################################
+# Apply changement of coordinate M = [[0, 0, -1], [1, 0, 0], [0, 1, 0]]
+# RB_R = Mt . [Bonsai given rotation matrix] . M
+# t stand for transposed
+
+"""
+[[0.8633447, 0.02179115, -0.5041437],
+[-0.07533064, -0.9823064, -0.1714628],
+[-0.49896, 0.186009, -0.8464276]]
+0.2055409 2.522384 -2.553286 1
+
+[[-0.8772146, 0.03632253, 0.4787225],
+[0.05409878, -0.9833049, 0.1737381],
+[0.4770408, 0.1783039, 0.8606042]]
+2.326427 2.428492 1.591011 1
+
+### TESTS
+
+[[0.7709669, 0.0003505305, 0.6368753],
+[-0.00685263, -0.9999374, 0.008845782],
+[0.6368385, -0.01118407, -0.7709163]]
+
+[[0.9063203, -0.003801087, -0.4225747],
+[0.001591456, -0.9999218, 0.01240765],
+[-0.4225887, -0.01191781, -0.9062433]]
+
+"""
 # INITIALSATION
 # Positionning LH
+p1 = [0.2055409, 2.522384, -2.553286]
+p2 = [2.326427, 2.428492, 1.591011]
 
-p1 = [1.806653, 0.3741548, 2.461003]
-p2 = [1.815818, -2.143868, 2.483389]
-
+'''
+p1 = [2.553286, 0.2055409, 2.522384]
+p2 = [-1.591011, 2.326427, 2.428492]
+'''
 # Rotation Matrices LH1 and LH2 on world Basis
 
-RB_R = [[7.709163e-01, -6.368385e-01, -1.118407e-02],
-        [6.368753e-01,  7.709669e-01, -3.505305e-04],
-        [8.845782e-03, -6.852630e-03,  9.999374e-01]]
+m1 = [[0.8633447, 0.02179115, -0.5041437],
+    [-0.07533064, -0.9823064, -0.1714628],
+    [-0.49896, 0.186009, -0.8464276]]
 
-RC_R = [[ 0.9062433 ,  0.4225887 , -0.01191781],
-        [-0.4225747 ,  0.9063203 ,  0.00380109],
-        [ 0.01240765,  0.00159146,  0.9999218 ]]
+RB_R = [[0.7709669, 0.0003505305, 0.6368753],
+    [-0.00685263, -0.9999374, 0.008845782],
+    [0.6368385, -0.01118407, -0.7709163]]
+"""
+RB_R = [[-0.9823064 , -0.1714628 ,  0.07533064],
+        [ 0.186009  , -0.8464276 ,  0.49896   ],
+        [-0.02179115,  0.5041437 ,  0.8633447 ]]
 
-def diode_pos(angle_scan):
+RB_R =[[-0.9823064 ,  0.186009  , -0.02179115],
+       [-0.1714628 , -0.8464276 ,  0.5041437 ],
+       [ 0.07533064,  0.49896   ,  0.8633447 ]]
+
+RB_R = [[-0.8464276 ,  0.49896   , -0.186009  ],
+       [ 0.5041437 ,  0.8633447 ,  0.02179115],
+       [ 0.1714628 , -0.07533064, -0.9823064 ]]
+"""
+############################
+m2 = [[-0.8772146, 0.03632253, 0.4787225],
+    [0.05409878, -0.9833049, 0.1737381],
+    [0.4770408, 0.1783039, 0.8606042]]
+
+RC_R =[[0.9063203, -0.003801087, -0.4225747],
+    [0.001591456, -0.9999218, 0.01240765],
+    [-0.4225887, -0.01191781, -0.9062433]]
+"""
+RC_R = [[-0.9833049 ,  0.1737381 , -0.05409878],
+        [ 0.1783039 ,  0.8606042 , -0.4770408 ],
+        [-0.03632253, -0.4787225 , -0.8772146 ]]
+
+RC_R =[[-0.9833049 ,  0.1783039 , -0.03632253],
+       [ 0.1737381 ,  0.8606042 , -0.4787225 ],
+       [-0.05409878, -0.4770408 , -0.8772146 ]]
+
+RC_R = [[ 0.8606042 , -0.4770408 , -0.1783039 ],
+       [-0.4787225 , -0.8772146 ,  0.03632253],
+       [-0.1737381 ,  0.05409878, -0.9833049 ]]
+"""
+
+
+M = [[0, 0, -1], [1, 0, 0], [0, 1, 0]]
+Minv = np.linalg.inv(M)
+
+# Changement base matrix from OpenGL to Blender
+R_ob = [[ 1, 0, 0],
+        [ 0, 0, 1],
+        [ 0,-1, 0]]
+
+# Translation vectors after base Changement
+p1b = np.dot(R_ob,p1)
+#print(p1b)
+p2b = np.dot(R_ob,p2)
+#print(p2b)
+# Rotation matrix in the base changement
+R1 = np.matmul(np.linalg.inv(R_ob), np.matmul(m1, R_ob))
+R2 = np.matmul(np.linalg.inv(R_ob), np.matmul(m2, R_ob))
+
+
+def vect_uv(angle_scan):
+    global R1, R2, p1b, p2b
+    #vecH1_loc = [sin(angle_scan[0]), cos(angle_scan[0]), 0]
+    #vecV1_loc = [sin(angle_scan[1]), 0, cos(angle_scan[1])]
     vecH1_loc = [sin(angle_scan[0]), cos(angle_scan[0]), 0]
-    vecV1_loc = [sin(angle_scan[1]), 0, cos(angle_scan[1])]
+    vecV1_loc = [cos(angle_scan[1]), 0, -sin(angle_scan[1])]
 
+    #vecH2_loc = [sin(angle_scan[2]), cos(angle_scan[2]), 0]
+    #vecV2_loc = [sin(angle_scan[3]), 0, cos(angle_scan[3])]
     vecH2_loc = [sin(angle_scan[2]), cos(angle_scan[2]), 0]
     vecV2_loc = [sin(angle_scan[3]), 0, cos(angle_scan[3])]
 
@@ -45,9 +132,45 @@ def diode_pos(angle_scan):
     v_loc = np.array([v[0]/norm_v, v[1]/norm_v, v[2]/norm_v])
 
     # STEP: transform line from relative coordinates to global lighthouse coordinate system (defined by matrix) (multiply vector by matrix)
+    """
+    XB = np.dot(Minv,np.dot(RB_R,M))
+    XC = np.dot(Minv,np.dot(RC_R,M))
+    """
+    """
+    u = np.matmul(np.linalg.inv(RB_R), u_loc)
+    v = np.matmul(np.linalg.inv(RC_R), v_loc)
+    """
+    """
+    u = np.matmul(R1, u_loc)
+    v = np.matmul(R2, v_loc)
+    """
 
-    u = np.matmul(RB_R, u_loc)
-    v = np.matmul(RC_R, v_loc)
+    u = u_loc
+    v = v_loc
+
+    return u, v
+
+def diode_pos(angle_scan):
+    global R1, R2
+    vecH1_loc = [0, cos(angle_scan[0]), sin(angle_scan[0])]
+    vecV1_loc = [cos(angle_scan[1]), 0, -sin(angle_scan[1])]
+
+    vecH2_loc = [0, cos(angle_scan[2]), sin(angle_scan[2])]
+    vecV2_loc = [cos(angle_scan[3]), 0, -sin(angle_scan[3])]
+
+    u = [vecH1_loc[0]+vecV1_loc[0], vecH1_loc[1]+vecV1_loc[1], vecH1_loc[2]+vecV1_loc[2]]
+    v = [vecH2_loc[0]+vecV2_loc[0], vecH2_loc[1]+vecV2_loc[1], vecH2_loc[2]+vecV2_loc[2]]
+
+    norm_u = sqrt(u[0]*u[0] + u[1]*u[1] + u[2]*u[2])
+    norm_v = sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
+
+    u_loc = np.array([u[0]/norm_u, u[1]/norm_u, u[2]/norm_u])
+    v_loc = np.array([v[0]/norm_v, v[1]/norm_v, v[2]/norm_v])
+
+    # STEP: transform line from relative coordinates to global lighthouse coordinate system (defined by matrix) (multiply vector by matrix)
+
+    u = np.matmul(R1, u_loc)
+    v = np.matmul(R2, v_loc)
 
     # Transform position
 
@@ -56,7 +179,7 @@ def diode_pos(angle_scan):
     #print(p0," & ",q0)
 
     # STEP: resolve the system of imperfect intersection
-    w0 = np.array([p2[0] - p1[0], p2[1] - p1[1], 0])
+    w0 = np.array([p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]])
     #w0 = p0 - q0
     #print(w0)
     a = np.dot(u, u)    #scalar product of u and w0
@@ -147,6 +270,32 @@ s_velocity = [0, 0, 0]
 s_accelerations = [S_ACC, S_ACC, S_ACC]
 
 wasIMUInit = False
+
+def get_vect_uv(rx):
+    global I_Accelero, velocity, s_I_Accelero, s_velocity, s_accelerations
+    global FILTER, S_ACC, raw_diode, time, wasIMUInit, cbi, factor
+
+    if not wasIMUInit :
+        velocity = [0, 0, 0]
+        wasIMUInit = True
+
+    # Refresh data
+    # base = 0 or 1 (B or C)
+    # axis = 0 or 1 (horizontal or vertical)
+    # centroids = array of 4 floats in microseconds
+    # accelerations = array of 3 floats in G (AKA m/s^2)
+    base, axis, centroids, accelerations = rx.parse_data()
+
+    # Periode of one scan in micro seconds
+    T_scan = 8333
+
+    # Convert time of scanning into angle in radians
+    for i in range(4):
+           scanAngle[i][base*2 + axis] = centroids[i] * pi / T_scan
+
+    # For Lighthouses
+    #for i in range(4):
+    return vect_uv(scanAngle[0])
 
 def get_position(rx):
     global I_Accelero, velocity, s_I_Accelero, s_velocity, s_accelerations
