@@ -43,62 +43,25 @@ FILTER = 2
 p1 = [0.2055409, 2.522384, -2.553286]
 p2 = [2.326427, 2.428492, 1.591011]
 
-'''
-p1 = [2.553286, 0.2055409, 2.522384]
-p2 = [-1.591011, 2.326427, 2.428492]
-'''
 # Rotation Matrices LH1 and LH2 on world Basis
 
 m1 = [[0.8633447, 0.02179115, -0.5041437],
     [-0.07533064, -0.9823064, -0.1714628],
     [-0.49896, 0.186009, -0.8464276]]
 
-RB_R = [[0.7709669, 0.0003505305, 0.6368753],
-    [-0.00685263, -0.9999374, 0.008845782],
-    [0.6368385, -0.01118407, -0.7709163]]
-"""
-RB_R = [[-0.9823064 , -0.1714628 ,  0.07533064],
-        [ 0.186009  , -0.8464276 ,  0.49896   ],
-        [-0.02179115,  0.5041437 ,  0.8633447 ]]
-
-RB_R =[[-0.9823064 ,  0.186009  , -0.02179115],
-       [-0.1714628 , -0.8464276 ,  0.5041437 ],
-       [ 0.07533064,  0.49896   ,  0.8633447 ]]
-
-RB_R = [[-0.8464276 ,  0.49896   , -0.186009  ],
-       [ 0.5041437 ,  0.8633447 ,  0.02179115],
-       [ 0.1714628 , -0.07533064, -0.9823064 ]]
-"""
-############################
 m2 = [[-0.8772146, 0.03632253, 0.4787225],
     [0.05409878, -0.9833049, 0.1737381],
     [0.4770408, 0.1783039, 0.8606042]]
 
-RC_R =[[0.9063203, -0.003801087, -0.4225747],
-    [0.001591456, -0.9999218, 0.01240765],
-    [-0.4225887, -0.01191781, -0.9062433]]
-"""
-RC_R = [[-0.9833049 ,  0.1737381 , -0.05409878],
-        [ 0.1783039 ,  0.8606042 , -0.4770408 ],
-        [-0.03632253, -0.4787225 , -0.8772146 ]]
-
-RC_R =[[-0.9833049 ,  0.1783039 , -0.03632253],
-       [ 0.1737381 ,  0.8606042 , -0.4787225 ],
-       [-0.05409878, -0.4770408 , -0.8772146 ]]
-
-RC_R = [[ 0.8606042 , -0.4770408 , -0.1783039 ],
-       [-0.4787225 , -0.8772146 ,  0.03632253],
-       [-0.1737381 ,  0.05409878, -0.9833049 ]]
-"""
-
-
-M = [[0, 0, -1], [1, 0, 0], [0, 1, 0]]
-Minv = np.linalg.inv(M)
-
 # Changement base matrix from OpenGL to Blender
+"""
 R_ob = [[ 1, 0, 0],
-        [ 0, 0, 1],
-        [ 0,-1, 0]]
+        [ 0, 0,-1],
+        [ 0, 1, 0]]
+"""
+R_ob = [[ 0, 0,-1],
+        [ 1, 0, 0],
+        [ 0, 1, 0]]
 
 # Translation vectors after base Changement
 p1b = np.dot(R_ob,p1)
@@ -106,24 +69,32 @@ p1b = np.dot(R_ob,p1)
 p2b = np.dot(R_ob,p2)
 #print(p2b)
 # Rotation matrix in the base changement
+
 R1 = np.matmul(np.linalg.inv(R_ob), np.matmul(m1, R_ob))
 R2 = np.matmul(np.linalg.inv(R_ob), np.matmul(m2, R_ob))
-
-
+"""
+R1 = np.matmul(R_ob, np.matmul(m1, np.linalg.inv(R_ob)))
+R2 = np.matmul(R_ob, np.matmul(m2, np.linalg.inv(R_ob)))
+"""
 def vect_uv(angle_scan):
-    global R1, R2, p1b, p2b
+    global R1, R2
     #vecH1_loc = [sin(angle_scan[0]), cos(angle_scan[0]), 0]
     #vecV1_loc = [sin(angle_scan[1]), 0, cos(angle_scan[1])]
-    vecH1_loc = [sin(angle_scan[0]), cos(angle_scan[0]), 0]
-    vecV1_loc = [cos(angle_scan[1]), 0, -sin(angle_scan[1])]
+    vecH1_loc = [sin(angle_scan[0]), -cos(angle_scan[0]), 0]
+    vecV1_loc = [sin(angle_scan[1]), 0, -cos(angle_scan[1])]
 
     #vecH2_loc = [sin(angle_scan[2]), cos(angle_scan[2]), 0]
     #vecV2_loc = [sin(angle_scan[3]), 0, cos(angle_scan[3])]
-    vecH2_loc = [sin(angle_scan[2]), cos(angle_scan[2]), 0]
-    vecV2_loc = [sin(angle_scan[3]), 0, cos(angle_scan[3])]
+    vecH2_loc = [sin(angle_scan[2]), -cos(angle_scan[2]), 0]
+    vecV2_loc = [sin(angle_scan[3]), 0, -cos(angle_scan[3])]
+
+    #print(angle_scan[3])
 
     u = [vecH1_loc[0]+vecV1_loc[0], vecH1_loc[1]+vecV1_loc[1], vecH1_loc[2]+vecV1_loc[2]]
     v = [vecH2_loc[0]+vecV2_loc[0], vecH2_loc[1]+vecV2_loc[1], vecH2_loc[2]+vecV2_loc[2]]
+
+    #print(angle_scan[2])
+    #print(angle_scan[3])
 
     norm_u = sqrt(u[0]*u[0] + u[1]*u[1] + u[2]*u[2])
     norm_v = sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
@@ -132,34 +103,39 @@ def vect_uv(angle_scan):
     v_loc = np.array([v[0]/norm_v, v[1]/norm_v, v[2]/norm_v])
 
     # STEP: transform line from relative coordinates to global lighthouse coordinate system (defined by matrix) (multiply vector by matrix)
-    """
-    XB = np.dot(Minv,np.dot(RB_R,M))
-    XC = np.dot(Minv,np.dot(RC_R,M))
-    """
-    """
-    u = np.matmul(np.linalg.inv(RB_R), u_loc)
-    v = np.matmul(np.linalg.inv(RC_R), v_loc)
-    """
-    """
+
     u = np.matmul(R1, u_loc)
     v = np.matmul(R2, v_loc)
-    """
 
+    for i in range(3):
+        u[i] += p1b[i]
+        v[i] += p2b[i]
+
+    """
     u = u_loc
     v = v_loc
-
+    """
     return u, v
 
 def diode_pos(angle_scan):
-    global R1, R2
-    vecH1_loc = [0, cos(angle_scan[0]), sin(angle_scan[0])]
-    vecV1_loc = [cos(angle_scan[1]), 0, -sin(angle_scan[1])]
+    global R1, R2, p1b, p2b
+    #vecH1_loc = [0, cos(angle_scan[0]), sin(angle_scan[0])]
+    #vecV1_loc = [cos(angle_scan[1]), 0, -sin(angle_scan[1])]
+    vecH1_loc = [sin(angle_scan[0]), -cos(angle_scan[0]), 0]
+    vecV1_loc = [sin(angle_scan[1]), 0, -cos(angle_scan[1])]
 
-    vecH2_loc = [0, cos(angle_scan[2]), sin(angle_scan[2])]
-    vecV2_loc = [cos(angle_scan[3]), 0, -sin(angle_scan[3])]
+    #vecH2_loc = [0, cos(angle_scan[0]), sin(angle_scan[0])]
+    #vecV2_loc = [cos(angle_scan[1]), 0, -sin(angle_scan[1])]
+    vecH2_loc = [sin(angle_scan[2]), -cos(angle_scan[2]), 0]
+    vecV2_loc = [sin(angle_scan[3]), 0, -cos(angle_scan[3])]
+
+    #print(angle_scan[3])
 
     u = [vecH1_loc[0]+vecV1_loc[0], vecH1_loc[1]+vecV1_loc[1], vecH1_loc[2]+vecV1_loc[2]]
     v = [vecH2_loc[0]+vecV2_loc[0], vecH2_loc[1]+vecV2_loc[1], vecH2_loc[2]+vecV2_loc[2]]
+
+    #print(angle_scan[2])
+    #print(angle_scan[3])
 
     norm_u = sqrt(u[0]*u[0] + u[1]*u[1] + u[2]*u[2])
     norm_v = sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
@@ -174,12 +150,12 @@ def diode_pos(angle_scan):
 
     # Transform position
 
-    p0 = p1
-    q0 = p2
+    p0 = p1b
+    q0 = p2b
     #print(p0," & ",q0)
 
     # STEP: resolve the system of imperfect intersection
-    w0 = np.array([p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]])
+    w0 = np.array([p2b[0] - p1b[0], p2b[1] - p1b[1], p2b[2] - p1b[2]])
     #w0 = p0 - q0
     #print(w0)
     a = np.dot(u, u)    #scalar product of u and w0
