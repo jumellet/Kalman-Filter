@@ -54,7 +54,7 @@ m2 = [[-0.8772146, 0.03632253, 0.4787225],
     [0.4770408, 0.1783039, 0.8606042]]
 
 # Changement base matrix from OpenGL to Blender
-"""
+
 R_ob = [[ 1, 0, 0],
         [ 0, 0,-1],
         [ 0, 1, 0]]
@@ -62,7 +62,7 @@ R_ob = [[ 1, 0, 0],
 R_ob = [[ 0, 0,-1],
         [ 1, 0, 0],
         [ 0, 1, 0]]
-
+"""
 # Translation vectors after base Changement
 p1b = np.dot(R_ob,p1)
 #print(p1b)
@@ -103,14 +103,14 @@ def vect_uv(angle_scan):
     v_loc = np.array([v[0]/norm_v, v[1]/norm_v, v[2]/norm_v])
 
     # STEP: transform line from relative coordinates to global lighthouse coordinate system (defined by matrix) (multiply vector by matrix)
-
+    """
     u = np.matmul(R1, u_loc)
     v = np.matmul(R2, v_loc)
 
     for i in range(3):
         u[i] += p1b[i]
         v[i] += p2b[i]
-
+    """
     """
     u = u_loc
     v = v_loc
@@ -118,44 +118,46 @@ def vect_uv(angle_scan):
     return u, v
 
 def diode_pos(angle_scan):
-    global R1, R2, p1b, p2b
-    #vecH1_loc = [0, cos(angle_scan[0]), sin(angle_scan[0])]
-    #vecV1_loc = [cos(angle_scan[1]), 0, -sin(angle_scan[1])]
-    vecH1_loc = [sin(angle_scan[0]), -cos(angle_scan[0]), 0]
-    vecV1_loc = [sin(angle_scan[1]), 0, -cos(angle_scan[1])]
+    global R1, R2, p1b, p2b, m1, m2, p1, p2
+    vecH1_loc = [0, cos(angle_scan[0]), sin(angle_scan[0])]
+    vecV1_loc = [cos(angle_scan[1]), 0, -sin(angle_scan[1])]
+    #vecH1_loc = [sin(angle_scan[0]), -cos(angle_scan[0]), 0]
+    #vecV1_loc = [sin(angle_scan[1]), 0, -cos(angle_scan[1])]
 
-    #vecH2_loc = [0, cos(angle_scan[0]), sin(angle_scan[0])]
-    #vecV2_loc = [cos(angle_scan[1]), 0, -sin(angle_scan[1])]
-    vecH2_loc = [sin(angle_scan[2]), -cos(angle_scan[2]), 0]
-    vecV2_loc = [sin(angle_scan[3]), 0, -cos(angle_scan[3])]
+    vecH2_loc = [0, cos(angle_scan[0]), sin(angle_scan[0])]
+    vecV2_loc = [cos(angle_scan[1]), 0, -sin(angle_scan[1])]
+    #vecH2_loc = [sin(angle_scan[2]), -cos(angle_scan[2]), 0]
+    #vecV2_loc = [sin(angle_scan[3]), 0, -cos(angle_scan[3])]
 
     #print(angle_scan[3])
-
+    """
     u = [vecH1_loc[0]+vecV1_loc[0], vecH1_loc[1]+vecV1_loc[1], vecH1_loc[2]+vecV1_loc[2]]
     v = [vecH2_loc[0]+vecV2_loc[0], vecH2_loc[1]+vecV2_loc[1], vecH2_loc[2]+vecV2_loc[2]]
-
+    """
+    u = np.cross(vecH1_loc, vecV1_loc)
+    v = np.cross(vecH2_loc, vecV2_loc)
     #print(angle_scan[2])
     #print(angle_scan[3])
-
+    """
     norm_u = sqrt(u[0]*u[0] + u[1]*u[1] + u[2]*u[2])
     norm_v = sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
 
     u_loc = np.array([u[0]/norm_u, u[1]/norm_u, u[2]/norm_u])
     v_loc = np.array([v[0]/norm_v, v[1]/norm_v, v[2]/norm_v])
-
+    """
     # STEP: transform line from relative coordinates to global lighthouse coordinate system (defined by matrix) (multiply vector by matrix)
 
-    u = np.matmul(R1, u_loc)
-    v = np.matmul(R2, v_loc)
+    u = np.matmul(m1, u)
+    v = np.matmul(m2, v)
 
     # Transform position
 
-    p0 = p1b
-    q0 = p2b
+    p0 = p1
+    q0 = p2
     #print(p0," & ",q0)
 
     # STEP: resolve the system of imperfect intersection
-    w0 = np.array([p2b[0] - p1b[0], p2b[1] - p1b[1], p2b[2] - p1b[2]])
+    w0 = np.array([p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]])
     #w0 = p0 - q0
     #print(w0)
     a = np.dot(u, u)    #scalar product of u and w0
@@ -184,6 +186,7 @@ def diode_pos(angle_scan):
             qT[i] = q0[i] + t*v[i]
             I[i] = (pS[i] + qT[i]) / 2
 
+        I = np.dot(R1, I)
         return I
 
 ##########################################################
