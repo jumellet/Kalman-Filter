@@ -8,7 +8,6 @@ from math import *
 import numpy as np
 from reception import *
 
-FILTER = 2
 #########################################################
 # PROCESSING LightHouse
 #########################################################
@@ -374,8 +373,7 @@ def get_position(rx):
     # Periode of one scan in micro seconds
     T_scan = 8333
     time += 1
-    # Factor of smoothness for low pass filter
-    factor = 0.2
+
 
     # Convert time of scanning into angle in radians
     for i in range(4):
@@ -384,6 +382,10 @@ def get_position(rx):
     # For Lighthouses
     for i in range(4):
         I_diode[i] = diode_pos(scanAngle[i])
+
+    FILTER = 1
+    # Factor of smoothness for low pass filter
+    factor = 0.1
 
     # Low pass filter
     if FILTER == 1 :
