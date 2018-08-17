@@ -121,10 +121,12 @@ def vect_uv(angle_scan):
     norm_v = np.linalg.norm(v)
 
     # u & v in homogeneous coordinates normalized
-    #u_loc = np.array([u[0]/norm_u, u[1]/norm_u, - u[2]/norm_u, 1])
-    # u test
-    u_loc = np.array([0,1,0,1])
+    u_loc = np.array([u[0]/norm_u, u[1]/norm_u, - u[2]/norm_u, 1])
     v_loc = np.array([v[0]/norm_v, v[1]/norm_v, - v[2]/norm_v, 1])
+    # u test
+    #u_loc = np.array([0,0,-1,1])
+    #v_loc = np.array([1,0,0,1])
+
     #print("u_loc ", u_loc)
 
     # Transform line from relative coordinates to global lighthouse coordinate system (defined by matrix) (multiply vector by matrix)
