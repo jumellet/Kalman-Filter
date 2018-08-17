@@ -123,7 +123,7 @@ def vect_uv(angle_scan):
     # u & v in homogeneous coordinates normalized
     #u_loc = np.array([u[0]/norm_u, u[1]/norm_u, - u[2]/norm_u, 1])
     # u test
-    u_loc = np.array([0.5,0.5,-0.5,1])
+    u_loc = np.array([0,1,0,1])
     v_loc = np.array([v[0]/norm_v, v[1]/norm_v, - v[2]/norm_v, 1])
     #print("u_loc ", u_loc)
 
@@ -136,9 +136,6 @@ def vect_uv(angle_scan):
     p1 = np.matmul(h1,p1) # p1 is position of base A
     u = np.matmul(h1,u_loc) # u vector after scanning of base A
     #print("u1 ", u)
-    print("h1 ", h1)
-    print("p1 ", p1)
-    print(np.matmul(h1,p1))
 
     # now we fix all this to Blender space (swap Z with Y)
     swizzle = [0,2,1,3]
@@ -153,7 +150,6 @@ def vect_uv(angle_scan):
 
     p2 = p2[swizzle]
     v = v[swizzle]
-
 
     #print("u atom ", u)
     return u[0:3], v[0:3]
