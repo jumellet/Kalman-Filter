@@ -53,6 +53,17 @@ m2 = [[-0.8772146, 0.03632253, 0.4787225],
     [0.05409878, -0.9833049, 0.1737381],
     [0.4770408, 0.1783039, 0.8606042]]
 
+# Homogeneous coordinate matrices given by Vive sdk
+h1 = [[0.8633447, 0.02179115, -0.5041437, 0],
+      [-0.07533064, -0.9823064, -0.1714628, 0],
+      [-0.49896, 0.186009, -0.8464276, 0],
+      [0.2055409, 2.522384, -2.553286, 1]]
+
+h2 = [[-0.8772146, 0.03632253, 0.4787225, 0],
+      [0.05409878, -0.9833049, 0.1737381, 0],
+      [0.4770408, 0.1783039, 0.8606042, 0],
+      [2.326427, 2.428492, 1.591011, 1]]
+
 # Changement base matrix from OpenGL to Blender
 
 R_ob = [[ 1, 0, 0],
@@ -77,7 +88,7 @@ R1 = np.matmul(R_ob, np.matmul(m1, np.linalg.inv(R_ob)))
 R2 = np.matmul(R_ob, np.matmul(m2, np.linalg.inv(R_ob)))
 """
 def vect_uv(angle_scan):
-    global R1, R2
+    global h1, h2
 
     vecH1_loc = [-cos(angle_scan[0]), 0, sin(angle_scan[0])]
     vecV1_loc = [0, -cos(angle_scan[1]), sin(angle_scan[1])]
@@ -94,10 +105,36 @@ def vect_uv(angle_scan):
     norm_u = sqrt(u[0]*u[0] + u[1]*u[1] + u[2]*u[2])
     norm_v = sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
 
-    u_loc = np.array([u[0]/norm_u, u[1]/norm_u, u[2]/norm_u])
-    v_loc = np.array([v[0]/norm_v, v[1]/norm_v, v[2]/norm_v])
+    # u & v in homogeneous coordinates normalized
+    u_loc = np.array([u[0]/norm_u, u[1]/norm_u, u[2]/norm_u, 1])
+    v_loc = np.array([v[0]/norm_v, v[1]/norm_v, v[2]/norm_v, 1])
 
     # STEP: transform line from relative coordinates to global lighthouse coordinate system (defined by matrix) (multiply vector by matrix)
+
+    # we need to transpose to convert from column-major to row-major
+    h1 = np.array(h1).T # raw base transform
+    p1 = np.array([0,0,0,1]) # (0,0,0) in homogeneous coordinates
+    """
+    ax = np.array([1,0,0,1]) # (1,0,0) in homogeneous coordinates
+    ay = np.array([0,1,0,1]) # (0,1,0) in homogeneous coordinates
+    az = np.array([0,0,-1,1]) # (0,0,1) in homogeneous coordinates
+    """
+    p1 = np.matmul(h1,p1) # p0 is position of base A
+    u = np.matmul(h1,u_loc) # u vector after scanning of base A
+    """
+    ay = np.matmul(h1,ay) # ay represents Y-axis of base A
+    az = np.matmul(h1,az) # az represents Z-axis of base A
+    """
+
+    # now we fix all this to Blender space (swap Z with Y)
+    swizzle = [0,2,1,3]
+    p1 = p1[swizzle]
+    u = u[swizzle]
+
+    """
+    ay = ay[swizzle]
+    az = az[swizzle]
+    """
     """
     u = np.matmul(R1, u_loc)
     v = np.matmul(R2, v_loc)
@@ -110,7 +147,7 @@ def vect_uv(angle_scan):
     u = u_loc
     v = v_loc
     """
-    return u, v
+    return u[0:3], v
 
 def diode_pos(angle_scan):
     global R1, R2, p1b, p2b, m1, m2, p1, p2
@@ -269,6 +306,7 @@ def get_vect_uv(rx):
 
     # For Lighthouses
     #for i in range(4):
+    # Scan for diode number 0
     return vect_uv(scanAngle[0])
 
 def get_position(rx):
