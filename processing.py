@@ -88,7 +88,15 @@ R1 = np.matmul(R_ob, np.matmul(m1, np.linalg.inv(R_ob)))
 R2 = np.matmul(R_ob, np.matmul(m2, np.linalg.inv(R_ob)))
 """
 def vect_uv(angle_scan):
-    global h1, h2
+    h1 = [[0.8633447, 0.02179115, -0.5041437, 0],
+          [-0.07533064, -0.9823064, -0.1714628, 0],
+          [-0.49896, 0.186009, -0.8464276, 0],
+          [0.2055409, 2.522384, -2.553286, 1]]
+
+    h2 = [[-0.8772146, 0.03632253, 0.4787225, 0],
+          [0.05409878, -0.9833049, 0.1737381, 0],
+          [0.4770408, 0.1783039, 0.8606042, 0],
+          [2.326427, 2.428492, 1.591011, 1]]
 
     vecH1_loc = np.array([-cos(angle_scan[0]), 0, sin(angle_scan[0])])
     vecV1_loc = np.array([0, -cos(angle_scan[1]), sin(angle_scan[1])])
@@ -116,8 +124,8 @@ def vect_uv(angle_scan):
     #u_loc = np.array([u[0]/norm_u, u[1]/norm_u, - u[2]/norm_u, 1])
     # u test
     u_loc = np.array([0.5,0.5,-0.5,1])
-    v_loc = np.array([v[0]/norm_v, v[1]/norm_v, v[2]/norm_v, 1])
-    #print("v_loc ", v)
+    v_loc = np.array([v[0]/norm_v, v[1]/norm_v, - v[2]/norm_v, 1])
+    #print("u_loc ", u_loc)
 
     # Transform line from relative coordinates to global lighthouse coordinate system (defined by matrix) (multiply vector by matrix)
 
@@ -128,6 +136,9 @@ def vect_uv(angle_scan):
     p1 = np.matmul(h1,p1) # p1 is position of base A
     u = np.matmul(h1,u_loc) # u vector after scanning of base A
     #print("u1 ", u)
+    print("h1 ", h1)
+    print("p1 ", p1)
+    print(np.matmul(h1,p1))
 
     # now we fix all this to Blender space (swap Z with Y)
     swizzle = [0,2,1,3]
