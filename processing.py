@@ -111,25 +111,30 @@ def vect_uv(angle_scan):
 
     # STEP: transform line from relative coordinates to global lighthouse coordinate system (defined by matrix) (multiply vector by matrix)
 
+    # For LH1
     # we need to transpose to convert from column-major to row-major
     h1 = np.array(h1).T # raw base transform
     p1 = np.array([0,0,0,1]) # (0,0,0) in homogeneous coordinates
-    """
-    ax = np.array([1,0,0,1]) # (1,0,0) in homogeneous coordinates
-    ay = np.array([0,1,0,1]) # (0,1,0) in homogeneous coordinates
-    az = np.array([0,0,-1,1]) # (0,0,1) in homogeneous coordinates
-    """
-    p1 = np.matmul(h1,p1) # p0 is position of base A
+
+    p1 = np.matmul(h1,p1) # p1 is position of base A
     u = np.matmul(h1,u_loc) # u vector after scanning of base A
-    """
-    ay = np.matmul(h1,ay) # ay represents Y-axis of base A
-    az = np.matmul(h1,az) # az represents Z-axis of base A
-    """
 
     # now we fix all this to Blender space (swap Z with Y)
     swizzle = [0,2,1,3]
     p1 = p1[swizzle]
     u = u[swizzle]
+
+    # For LH2
+    h2 = np.array(h2).T # raw base transform
+    p2 = np.array([0,0,0,1]) # (0,0,0) in homogeneous coordinates
+
+    p2 = np.matmul(h2,p2) # p2 is position of base A
+    v = np.matmul(h2,v_loc) # v vector after scanning of base A
+
+    # now we fix all this to Blender space (swap Z with Y)
+    swizzle = [0,2,1,3]
+    p2 = p2[swizzle]
+    v = v[swizzle]
 
     """
     ay = ay[swizzle]
@@ -147,7 +152,7 @@ def vect_uv(angle_scan):
     u = u_loc
     v = v_loc
     """
-    return u[0:3], v
+    return u[0:3], v[0:3]
 
 def diode_pos(angle_scan):
     global R1, R2, p1b, p2b, m1, m2, p1, p2
