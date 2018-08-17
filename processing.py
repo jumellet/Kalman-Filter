@@ -237,7 +237,7 @@ def diode_pos(angle_scan):
     #print(p0," & ",q0)
 
     # STEP: resolve the system of imperfect intersection
-    w0 = np.array([p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]])
+    w0 = np.array([p1[0] - p2[0], p1[1] - p2[1], p1[2] - p2[2]])
     #w0 = p0 - q0
     #print(w0)
     a = np.dot(u, u)    #scalar product of u and w0
@@ -264,7 +264,7 @@ def diode_pos(angle_scan):
         for i in range(3):
             pS[i] = p0[i] + s*u[i]
             qT[i] = q0[i] + t*v[i]
-            I[i] = (pS[i] + qT[i]) / 2
+            I[i] = -(pS[i] + qT[i]) / 2
 
         return I
 
