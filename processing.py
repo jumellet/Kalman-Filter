@@ -78,17 +78,12 @@ R2 = np.matmul(R_ob, np.matmul(m2, np.linalg.inv(R_ob)))
 """
 def vect_uv(angle_scan):
     global R1, R2
-    #vecH1_loc = [sin(angle_scan[0]), cos(angle_scan[0]), 0]
-    #vecV1_loc = [sin(angle_scan[1]), 0, cos(angle_scan[1])]
-    vecH1_loc = [sin(angle_scan[0]), -cos(angle_scan[0]), 0]
-    vecV1_loc = [sin(angle_scan[1]), 0, -cos(angle_scan[1])]
 
-    #vecH2_loc = [sin(angle_scan[2]), cos(angle_scan[2]), 0]
-    #vecV2_loc = [sin(angle_scan[3]), 0, cos(angle_scan[3])]
-    vecH2_loc = [sin(angle_scan[2]), -cos(angle_scan[2]), 0]
-    vecV2_loc = [sin(angle_scan[3]), 0, -cos(angle_scan[3])]
+    vecH1_loc = [-cos(angle_scan[0]), 0, sin(angle_scan[0])]
+    vecV1_loc = [0, -cos(angle_scan[1]), sin(angle_scan[1])]
 
-    #print(angle_scan[3])
+    vecH2_loc = [-cos(angle_scan[2]), 0, sin(angle_scan[2])]
+    vecV2_loc = [0, -cos(angle_scan[3]), sin(angle_scan[3])]
 
     u = [vecH1_loc[0]+vecV1_loc[0], vecH1_loc[1]+vecV1_loc[1], vecH1_loc[2]+vecV1_loc[2]]
     v = [vecH2_loc[0]+vecV2_loc[0], vecH2_loc[1]+vecV2_loc[1], vecH2_loc[2]+vecV2_loc[2]]
