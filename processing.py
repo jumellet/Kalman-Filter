@@ -89,33 +89,38 @@ R2 = np.matmul(R_ob, np.matmul(m2, np.linalg.inv(R_ob)))
 """
 def vect_uv(angle_scan):
     global h1, h2
+    """
+    vecH1_loc = np.array([-cos(angle_scan[0]), 0, sin(angle_scan[0]), 1])
+    vecV1_loc = np.array([0, -cos(angle_scan[1]), sin(angle_scan[1]), 1])
 
-    vecH1_loc = [-cos(angle_scan[0]), 0, sin(angle_scan[0])]
-    vecV1_loc = [0, -cos(angle_scan[1]), sin(angle_scan[1])]
+    vecH2_loc = np.array([-cos(angle_scan[2]), 0, sin(angle_scan[2]), 1])
+    vecV2_loc = np.array([0, -cos(angle_scan[3]), sin(angle_scan[3]), 1])
+    """
+    vecH1_loc = np.array([0, cos(angle_scan[0]), sin(angle_scan[0]), 1])
+    vecV1_loc = np.array([cos(angle_scan[1]), 0, -sin(angle_scan[1]), 1])
 
-    vecH2_loc = [-cos(angle_scan[2]), 0, sin(angle_scan[2])]
-    vecV2_loc = [0, -cos(angle_scan[3]), sin(angle_scan[3])]
+    vecH2_loc = np.array([0, cos(angle_scan[2]), sin(angle_scan[2]), 1])
+    vecV2_loc = np.array([cos(angle_scan[3]), 0, -sin(angle_scan[3]), 1])
 
-    u = [vecH1_loc[0]+vecV1_loc[0], vecH1_loc[1]+vecV1_loc[1], vecH1_loc[2]+vecV1_loc[2]]
-    v = [vecH2_loc[0]+vecV2_loc[0], vecH2_loc[1]+vecV2_loc[1], vecH2_loc[2]+vecV2_loc[2]]
+    u = vecH1_loc + vecV1_loc
+    v = vecH2_loc + vecV2_loc
 
     #print(angle_scan[2])
     #print(angle_scan[3])
 
-    norm_u = sqrt(u[0]*u[0] + u[1]*u[1] + u[2]*u[2])
-    norm_v = sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
+    norm_u = np.norm(u)
+    norm_v = np.norm(v)
 
     # u & v in homogeneous coordinates normalized
-    u_loc = np.array([u[0]/norm_u, u[1]/norm_u, u[2]/norm_u, 1])
-    v_loc = np.array([v[0]/norm_v, v[1]/norm_v, v[2]/norm_v, 1])
+    u_loc = np.array([u[0]/norm_u, u[1]/norm_u, - u[2]/norm_u)
+    v_loc = np.array([v[0]/norm_v, v[1]/norm_v, - v[2]/norm_v)
 
-    # STEP: transform line from relative coordinates to global lighthouse coordinate system (defined by matrix) (multiply vector by matrix)
+    # Transform line from relative coordinates to global lighthouse coordinate system (defined by matrix) (multiply vector by matrix)
 
     # For LH1
     # we need to transpose to convert from column-major to row-major
     h1 = np.array(h1).T # raw base transform
     p1 = np.array([0,0,0,1]) # (0,0,0) in homogeneous coordinates
-
     p1 = np.matmul(h1,p1) # p1 is position of base A
     u = np.matmul(h1,u_loc) # u vector after scanning of base A
 
@@ -127,12 +132,9 @@ def vect_uv(angle_scan):
     # For LH2
     h2 = np.array(h2).T # raw base transform
     p2 = np.array([0,0,0,1]) # (0,0,0) in homogeneous coordinates
-
     p2 = np.matmul(h2,p2) # p2 is position of base A
     v = np.matmul(h2,v_loc) # v vector after scanning of base A
 
-    # now we fix all this to Blender space (swap Z with Y)
-    swizzle = [0,2,1,3]
     p2 = p2[swizzle]
     v = v[swizzle]
 
