@@ -136,22 +136,6 @@ def vect_uv(angle_scan):
     p2 = p2[swizzle]
     v = v[swizzle]
 
-    """
-    ay = ay[swizzle]
-    az = az[swizzle]
-    """
-    """
-    u = np.matmul(R1, u_loc)
-    v = np.matmul(R2, v_loc)
-
-    for i in range(3):
-        u[i] += p1b[i]
-        v[i] += p2b[i]
-    """
-    """
-    u = u_loc
-    v = v_loc
-    """
     return u[0:3], v[0:3]
 
 def diode_pos(angle_scan):
