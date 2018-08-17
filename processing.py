@@ -95,7 +95,6 @@ def vect_uv(angle_scan):
 
     vecH2_loc = np.array([-cos(angle_scan[2]), 0, sin(angle_scan[2])])
     vecV2_loc = np.array([0, -cos(angle_scan[3]), sin(angle_scan[3])])
-    print("vech1 ", vecH1_loc)
 
     """
     vecH1_loc = np.array([0, cos(angle_scan[0]), sin(angle_scan[0])])
@@ -104,12 +103,8 @@ def vect_uv(angle_scan):
     vecH2_loc = np.array([0, cos(angle_scan[2]), sin(angle_scan[2])])
     vecV2_loc = np.array([cos(angle_scan[3]), 0, -sin(angle_scan[3])])
     """
-    #u = vecH1_loc + vecV1_loc
-    u = [vecH1_loc[0] + vecV1_loc[0], vecH1_loc[1] + vecV1_loc[1], vecH1_loc[2] + vecV1_loc[2]]
-    #v = vecH2_loc + vecV2_loc
-    v = [vecH2_loc[0] + vecV2_loc[0], vecH2_loc[1] + vecV2_loc[1], vecH2_loc[2] + vecV2_loc[2]]
-    #print("u0 ", u)
-
+    u = vecH1_loc + vecV1_loc
+    v = vecH2_loc + vecV2_loc
 
     #print(angle_scan[2])
     #print(angle_scan[3])
@@ -123,7 +118,7 @@ def vect_uv(angle_scan):
     u_loc = np.array([0.5,0.5,-0.5,1])
     v_loc = np.array([v[0]/norm_v, v[1]/norm_v, v[2]/norm_v, 1])
     #print("v_loc ", v)
-    """
+
     # Transform line from relative coordinates to global lighthouse coordinate system (defined by matrix) (multiply vector by matrix)
 
     # For LH1
@@ -147,7 +142,7 @@ def vect_uv(angle_scan):
 
     p2 = p2[swizzle]
     v = v[swizzle]
-    """
+
 
     #print("u atom ", u)
     return u[0:3], v[0:3]
