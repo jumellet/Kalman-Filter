@@ -15,28 +15,6 @@ from reception import *
 # RB_R = Mt . [Bonsai given rotation matrix] . M
 # t stand for transposed
 
-"""
-[[0.8633447, 0.02179115, -0.5041437],
-[-0.07533064, -0.9823064, -0.1714628],
-[-0.49896, 0.186009, -0.8464276]]
-0.2055409 2.522384 -2.553286 1
-
-[[-0.8772146, 0.03632253, 0.4787225],
-[0.05409878, -0.9833049, 0.1737381],
-[0.4770408, 0.1783039, 0.8606042]]
-2.326427 2.428492 1.591011 1
-
-### TESTS
-
-[[0.7709669, 0.0003505305, 0.6368753],
-[-0.00685263, -0.9999374, 0.008845782],
-[0.6368385, -0.01118407, -0.7709163]]
-
-[[0.9063203, -0.003801087, -0.4225747],
-[0.001591456, -0.9999218, 0.01240765],
-[-0.4225887, -0.01191781, -0.9062433]]
-
-"""
 # INITIALSATION
 # Positionning LH
 p1 = [0.2055409, 2.522384, -2.553286]
@@ -68,11 +46,7 @@ h2 = [[-0.8772146, 0.03632253, 0.4787225, 0],
 R_ob = [[ 1, 0, 0],
         [ 0, 0,-1],
         [ 0, 1, 0]]
-"""
-R_ob = [[ 0, 0,-1],
-        [ 1, 0, 0],
-        [ 0, 1, 0]]
-"""
+
 # Translation vectors after base Changement
 p1b = np.dot(R_ob,p1)
 #print(p1b)
@@ -82,10 +56,7 @@ p2b = np.dot(R_ob,p2)
 
 R1 = np.matmul(np.linalg.inv(R_ob), np.matmul(m1, R_ob))
 R2 = np.matmul(np.linalg.inv(R_ob), np.matmul(m2, R_ob))
-"""
-R1 = np.matmul(R_ob, np.matmul(m1, np.linalg.inv(R_ob)))
-R2 = np.matmul(R_ob, np.matmul(m2, np.linalg.inv(R_ob)))
-"""
+
 def vect_uv(angle_scan):
     h1 = [[0.8633447, 0.02179115, -0.5041437, 0],
           [-0.07533064, -0.9823064, -0.1714628, 0],
@@ -103,18 +74,8 @@ def vect_uv(angle_scan):
     vecH2_loc = np.array([-cos(angle_scan[2]), 0, sin(angle_scan[2])])
     vecV2_loc = np.array([0, -cos(angle_scan[3]), sin(angle_scan[3])])
 
-    """
-    vecH1_loc = np.array([0, cos(angle_scan[0]), sin(angle_scan[0])])
-    vecV1_loc = np.array([cos(angle_scan[1]), 0, -sin(angle_scan[1])])
-
-    vecH2_loc = np.array([0, cos(angle_scan[2]), sin(angle_scan[2])])
-    vecV2_loc = np.array([cos(angle_scan[3]), 0, -sin(angle_scan[3])])
-    """
     u = vecH1_loc + vecV1_loc
     v = vecH2_loc + vecV2_loc
-
-    #print(angle_scan[2])
-    #print(angle_scan[3])
 
     norm_u = np.linalg.norm(u)
     norm_v = np.linalg.norm(v)
@@ -122,12 +83,7 @@ def vect_uv(angle_scan):
     # u & v in homogeneous coordinates normalized
     u_loc = np.array([u[0]/norm_u, u[1]/norm_u, - u[2]/norm_u, 1])
     v_loc = np.array([v[0]/norm_v, v[1]/norm_v, - v[2]/norm_v, 1])
-    # u test
-    #u_loc = np.array([0,0,-1,1])
-    #v_loc = np.array([1,0,0,1])
-
-    #print("u_loc ", u_loc)
-
+ 
     # Transform line from relative coordinates to global lighthouse coordinate system (defined by matrix) (multiply vector by matrix)
 
     # For LH1
@@ -136,13 +92,12 @@ def vect_uv(angle_scan):
     p1 = np.array([0,0,0,1]) # (0,0,0) in homogeneous coordinates
     p1 = np.matmul(h1,p1) # p1 is position of base A
     u = np.matmul(h1,u_loc) # u vector after scanning of base A
-    #print("u1 ", u)
 
     # now we fix all this to Blender space (swap Z with Y)
     swizzle = [0,2,1,3]
     p1 = p1[swizzle]
     u = u[swizzle]
-    #print("u2 ", u)
+
     # For LH2
     h2 = np.array(h2).T # raw base transform
     p2 = np.array([0,0,0,1]) # (0,0,0) in homogeneous coordinates
@@ -152,7 +107,6 @@ def vect_uv(angle_scan):
     p2 = p2[swizzle]
     v = v[swizzle]
 
-    #print("u atom ", u)
     return u[0:3], v[0:3]
 
 def diode_pos(angle_scan):
@@ -172,18 +126,8 @@ def diode_pos(angle_scan):
     vecH2_loc = np.array([-cos(angle_scan[2]), 0, sin(angle_scan[2])])
     vecV2_loc = np.array([0, -cos(angle_scan[3]), sin(angle_scan[3])])
 
-    """
-    vecH1_loc = np.array([0, cos(angle_scan[0]), sin(angle_scan[0])])
-    vecV1_loc = np.array([cos(angle_scan[1]), 0, -sin(angle_scan[1])])
-
-    vecH2_loc = np.array([0, cos(angle_scan[2]), sin(angle_scan[2])])
-    vecV2_loc = np.array([cos(angle_scan[3]), 0, -sin(angle_scan[3])])
-    """
     u = vecH1_loc + vecV1_loc
     v = vecH2_loc + vecV2_loc
-
-    #print(angle_scan[2])
-    #print(angle_scan[3])
 
     norm_u = np.linalg.norm(u)
     norm_v = np.linalg.norm(v)
@@ -191,12 +135,7 @@ def diode_pos(angle_scan):
     # u & v in homogeneous coordinates normalized
     u_loc = np.array([u[0]/norm_u, u[1]/norm_u, - u[2]/norm_u, 1])
     v_loc = np.array([v[0]/norm_v, v[1]/norm_v, - v[2]/norm_v, 1])
-    # u test
-    #u_loc = np.array([0,0,-1,1])
-    #v_loc = np.array([1,0,0,1])
-
-    #print("u_loc ", u_loc)
-
+ 
     # Transform line from relative coordinates to global lighthouse coordinate system (defined by matrix) (multiply vector by matrix)
 
     # For LH1
@@ -205,13 +144,12 @@ def diode_pos(angle_scan):
     p1 = np.array([0,0,0,1]) # (0,0,0) in homogeneous coordinates
     p1 = np.matmul(h1,p1) # p1 is position of base A
     u = np.matmul(h1,u_loc) # u vector after scanning of base A
-    #print("u1 ", u)
 
     # now we fix all this to Blender space (swap Z with Y)
     swizzle = [0,2,1,3]
     p1 = p1[swizzle]
     u = u[swizzle]
-    #print("u2 ", u)
+
     # For LH2
     h2 = np.array(h2).T # raw base transform
     p2 = np.array([0,0,0,1]) # (0,0,0) in homogeneous coordinates
@@ -226,19 +164,14 @@ def diode_pos(angle_scan):
     v = v[0:3]
     p1 = p1[0:3]
     p2 = p2[0:3]
-    """
-    for i in range(3):
-        u[i] -= p1[i]
-        v[i] -= p2[i]
-    """
+
     p0 = p1
     q0 = p2
-    #print(p0," & ",q0)
-
+ 
     # STEP: resolve the system of imperfect intersection
     w0 = np.array([p1[0] - p2[0], p1[1] - p2[1], p1[2] - p2[2]])
     #w0 = p0 - q0
-    #print(w0)
+
     a = np.dot(u, u)    #scalar product of u and w0
     b = np.dot(u, v)
     c = np.dot(v, v)
