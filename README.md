@@ -2,7 +2,7 @@
 
 Here will be presented Sensor fusion for the HiveTracker. It makes fusion between Lighthouse positioning and the IMU.
 
-Nota : Here is the meaning of my abreviation. LH = Lighthouse ; KF = Kalman filter ; HT = HiveTracker
+Nota : Here is the meaning of my abbreviation. LH = Lighthouse ; KF = Kalman filter ; HT = HiveTracker
 
 There is three kind of files :
   - The preprocessing of data from the HiveTracker : this transform accelerations from the IMU and Lighthouses data into two 3D points of the space.
